@@ -8,5 +8,6 @@
     <entity x="400" y="270" type="coin"/>
     <entity x="500" y="400" type="coin"/>
     <entity x="600" y="400" type="coin"/>
+    <entity x="800" y="450" type="levelComplete"/>
     <entity x="60" y="140" type="player"/>
 </level>
