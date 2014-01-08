@@ -2,6 +2,7 @@ package com.example.base;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.BoundCamera;
+import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 

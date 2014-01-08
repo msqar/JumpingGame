@@ -12,11 +12,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.example.managers.ResourcesManager;
 
-/**
- * @author Mateusz Mysliwiec
- * @author www.matim-dev.com
- * @version 1.0
- */
 public abstract class Player extends AnimatedSprite
 {
 	
@@ -84,7 +79,7 @@ public abstract class Player extends AnimatedSprite
         {
             return; 
         }
-        body.setLinearVelocity(new Vector2(body.getLinearVelocity().x, 12)); 
+        body.setLinearVelocity(new Vector2(body.getLinearVelocity().x, 8)); 
     }
     
     public void increaseFootContacts()
@@ -96,5 +91,13 @@ public abstract class Player extends AnimatedSprite
     {
         footContacts--;
     }
+
+	public Body getPlayerBody() {
+		return body;
+	}
+
+	public void setPlayerBody(Body body) {
+		this.body = body;
+	}   
 
 }

@@ -1,7 +1,10 @@
 package com.example.managers;
 
+import java.io.IOException;
+
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.BoundCamera;
+import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
@@ -18,7 +21,6 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
 
-
 import com.example.testingand.GameActivity;
 
 
@@ -34,6 +36,7 @@ public class ResourcesManager
     public GameActivity activity;
     public BoundCamera camera;
     public VertexBufferObjectManager vbom;
+    public IRectangleVertexBufferObject vbo;
     
     public ITextureRegion splash_region;
     private BitmapTextureAtlas splashTextureAtlas;
@@ -62,6 +65,10 @@ public class ResourcesManager
     // Level Complete Window
     public ITextureRegion complete_window_region;
     public ITiledTextureRegion complete_stars_region;
+    
+    // Controls
+	public ITextureRegion control_knob_region;
+	public ITextureRegion control_base_region;
     
     //---------------------------------------------
     // TEXTURES & TEXTURE REGIONS
@@ -131,7 +138,10 @@ public class ResourcesManager
         player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 3, 1);
         complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "levelCompleteWindow.png");
         complete_stars_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "star.png", 2, 1);
-       
+
+        control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
+        control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");
+        
         try 
         {
             this.gameTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
@@ -197,7 +207,7 @@ public class ResourcesManager
     {
         FontFactory.setAssetBasePath("fonts/");
     	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-        font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "TheGirlNextDoor.ttf", 50, true, Color.WHITE.getABGRPackedInt(), 2.5f, Color.BLACK.getABGRPackedInt());
+        font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "orange juice 2.0.ttf", 50, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.BLACK_ABGR_PACKED_INT);
         font.load();
     }
     

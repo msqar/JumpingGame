@@ -12,8 +12,8 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
+
 import org.andengine.ui.activity.BaseGameActivity;
 
 import android.view.KeyEvent;
@@ -26,7 +26,7 @@ public class GameActivity extends BaseGameActivity {
 	private BoundCamera camera;
 	private static ResourcesManager resourcesManager;
 	private static int CAMERA_WIDTH = 800;
-	private static int CAMERA_HEIGHT = 480;	
+	private static int CAMERA_HEIGHT = 480;		
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -34,6 +34,7 @@ public class GameActivity extends BaseGameActivity {
 	    EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), this.camera);
 	    engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
 	    engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
+	    engineOptions.getTouchOptions().setNeedsMultiTouch(true); // supporting multi-touch
 	    return engineOptions;
 	}
 

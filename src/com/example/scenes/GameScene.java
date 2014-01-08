@@ -2,7 +2,12 @@ package com.example.scenes;
 
 import java.io.IOException;
 
+import javax.microedition.khronos.opengles.GL10;
+
 import org.andengine.engine.camera.hud.HUD;
+import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
+import org.andengine.engine.camera.hud.controls.BaseOnScreenControl.IOnScreenControlListener;
+import org.andengine.engine.camera.hud.controls.DigitalOnScreenControl;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
@@ -39,6 +44,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.example.base.BaseScene;
 import com.example.extras.LevelCompleteWindow;
 import com.example.extras.LevelCompleteWindow.StarsCount;
+import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager;
 import com.example.managers.SceneManager.SceneType;
 import com.example.object.Player;
@@ -82,6 +88,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	{
 	    createBackground();
 	    createHUD();
+	    createControls();
 	    createPhysics();
 	    loadLevel(1);
 	    createGameOverText();
@@ -127,7 +134,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         scoreText.setText("Score: 0");
         gameHUD.attachChild(scoreText);
         
-        camera.setHUD(gameHUD);
+        camera.setHUD(gameHUD);        
     }
     
     private void addToScore(int i)
@@ -194,6 +201,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 }
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN))
                 {
+                	
+//                	playerBody = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.DynamicBody, FIXTURE_DEF);
                 	levelObject = new Sprite(x, y, resourcesManager.coin_region, vbom)
                 	{
                 	    @Override
@@ -349,7 +358,44 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
             }
         };
         return contactListener;
+    } 
+    
+    private void createControls() {
+    	//final DigitalOnScreenControl control = new DigitalOnScreenControl(20, camera.getHeight() - ResourcesManager.getInstance().control_base_region.getHeight(), 
+    	final DigitalOnScreenControl control = new DigitalOnScreenControl(300, 300,
+    			camera, ResourcesManager.getInstance().control_base_region, ResourcesManager.getInstance().control_knob_region, 
+    			0.1f, vbom, new IOnScreenControlListener() {					
+					public void onControlChange(BaseOnScreenControl pBaseOnScreenControl, float x, float y) {
+						if(player.getPlayerBody().getLinearVelocity().x > -8 && player.getPlayerBody().getLinearVelocity().x < 8) {
+							if(x > 0) { // right
+								player.getPlayerBody().setLinearVelocity(8.0f, player.getPlayerBody().getLinearVelocity().y);
+							}else if (x < 0) { // left
+								player.getPlayerBody().setLinearVelocity(-8.0f, player.getPlayerBody().getLinearVelocity().y);
+							}else { // stop moving
+								player.getPlayerBody().setLinearVelocity(0.0f, player.getPlayerBody().getLinearVelocity().y);
+							}
+						}
+						if(y > 0) {
+							player.jump();
+						}
+					}
+				});
+    	
+    	control.getControlBase().setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+    	control.getControlBase().setAlpha(0.5f);
+    	control.getControlBase().setScaleCenter(0, 128);
+    	control.getControlBase().setScale(1.25f);
+    	control.getControlKnob().setScale(1.25f);
+    	control.setAnchorCenter(0, 0);
+    	control.refreshControlKnobPosition();
+    	setChildScene(control);
     }
+
+//	@Override
+//	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
     
 }
 
