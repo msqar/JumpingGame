@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.andengine.engine.Engine;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
+import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.ui.IGameInterface.OnCreateSceneCallback;
 
 import com.example.base.BaseScene;

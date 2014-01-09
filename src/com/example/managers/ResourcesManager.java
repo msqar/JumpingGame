@@ -69,6 +69,11 @@ public class ResourcesManager
     // Controls
 	public ITextureRegion control_knob_region;
 	public ITextureRegion control_base_region;
+	
+	// Background
+	
+	public ITextureRegion parallax_game_background_region;
+	public ITextureRegion parallax_game_background_clouds_region;
     
     //---------------------------------------------
     // TEXTURES & TEXTURE REGIONS
@@ -129,7 +134,7 @@ public class ResourcesManager
     private void loadGameGraphics()
     {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
-        gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 1024, 1024, TextureOptions.BILINEAR);
+        gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR);
         
         dirt_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "dirt.png");
         grass_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "grass.png");
@@ -141,6 +146,9 @@ public class ResourcesManager
 
         control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
         control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");
+        
+        parallax_game_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "game_background.png");
+        parallax_game_background_clouds_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "game_background_clouds.png");
         
         try 
         {

@@ -15,7 +15,8 @@ import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.scene.background.AutoParallaxBackground;
+import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -48,6 +49,7 @@ import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager;
 import com.example.managers.SceneManager.SceneType;
 import com.example.object.Player;
+import com.example.testingand.GameActivity;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener
 {
@@ -75,6 +77,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_LEVEL_COMPLETE = "levelComplete";
     
 	private Player player;
+	
+	private int amountOfCoinsGrabbed = 0;
+	private static final int TOTAL_AMOUNT_OF_COINS = 3;
 	
 	private boolean firstTouch = false;
 	
@@ -123,7 +128,17 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     
     private void createBackground()
     {
-        setBackground(new Background(240.0f, 240.0f, 240.0f));
+    	final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
+    	setBackground(autoParallaxBackground);
+    	
+    	final Sprite parallaxLayerBackSprite = new Sprite(0, 0, ResourcesManager.getInstance().parallax_game_background_region, vbom);
+		parallaxLayerBackSprite.setOffsetCenter(0, 0);
+		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f, parallaxLayerBackSprite));
+		
+		final Sprite parallaxLayerMidSprite = new Sprite(0, GameActivity.CAMERA_HEIGHT - ResourcesManager.getInstance().parallax_game_background_clouds_region.getHeight() - 80, ResourcesManager.getInstance().parallax_game_background_clouds_region, vbom);
+		parallaxLayerMidSprite.setOffsetCenter(0, 0);
+		parallaxLayerMidSprite.setScale(1.5f);
+		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-5.0f, parallaxLayerMidSprite));
     }
     
     private void createHUD()
@@ -143,6 +158,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     {
         score += i;
         scoreText.setText("Score: " + score);
+        amountOfCoinsGrabbed++;
     }
     
     private void createPhysics()
@@ -222,7 +238,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 	        super.onManagedUpdate(pSecondsElapsed);
 
                 	        if (player.collidesWith(this))
-                	        {
+                	        {                	        	
                 	            addToScore(10);
                 	            this.setVisible(false);
                 	            this.setIgnoreUpdate(true);
@@ -258,7 +274,24 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 
                             if (player.collidesWith(this))
                             {
-                                levelCompleteWindow.display(StarsCount.TWO, GameScene.this, camera);
+                            	// Checking how many stars the player has earned based on how many he grabbed
+                            	System.out.println(amountOfCoinsGrabbed + "  " + TOTAL_AMOUNT_OF_COINS);
+                            	float starCount = (float) amountOfCoinsGrabbed / TOTAL_AMOUNT_OF_COINS;
+                            	System.out.println(starCount + " << starCount");
+                            	StarsCount count = null;
+                            	if(starCount <= 0.34f) {
+                            		count = StarsCount.ONE;
+                            	}else if(starCount <= 0.67f) {
+                            		count = StarsCount.TWO;
+                            	}else if(starCount == 1.0f){
+                            		count = StarsCount.THREE;
+                            	}else{
+                            		count = StarsCount.ONE;
+                            	}
+                            	
+                            	System.out.println(count.name());
+                            	
+                                levelCompleteWindow.display(count, GameScene.this, camera);
                                 this.setVisible(false);
                                 this.setIgnoreUpdate(true);
                                 gameOverDisplayed = false;
@@ -401,7 +434,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     	control.refreshControlKnobPosition();
     	setChildScene(control);
     }
-
 //	@Override
 //	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 //		// TODO Auto-generated method stub
