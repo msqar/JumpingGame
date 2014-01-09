@@ -63,8 +63,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 	    
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1 = "platform1";
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2 = "platform2";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_DIRT = "dirt";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_GRASS = "grass";
+//	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1 = "platform1";
+//	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2 = "platform2";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3 = "platform3";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN = "coin";
 	
@@ -180,18 +182,29 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 
                 final Sprite levelObject;
                 
-                if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1))
+                if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_DIRT))
                 {
-                    levelObject = new Sprite(x, y, resourcesManager.platform1_region, vbom);
-                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("platform1");
+                    levelObject = new Sprite(x, y, resourcesManager.dirt_region, vbom);
+                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("dirt");
                 } 
-                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2))
+                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_GRASS))
                 {
-                    levelObject = new Sprite(x, y, resourcesManager.platform2_region, vbom);
-                    final Body body = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF);
-                    body.setUserData("platform2");
-                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
+                    levelObject = new Sprite(x, y, resourcesManager.grass_region, vbom);
+                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("grass");
                 }
+                
+//                if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1))
+//                {
+//                    levelObject = new Sprite(x, y, resourcesManager.dirt_region, vbom);
+//                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("platform1");
+//                } 
+//                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2))
+//                {
+//                    levelObject = new Sprite(x, y, resourcesManager.platform2_region, vbom);
+//                    final Body body = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF);
+//                    body.setUserData("platform2");
+//                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
+//                }
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3))
                 {
                     levelObject = new Sprite(x, y, resourcesManager.platform3_region, vbom);
@@ -201,8 +214,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 }
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN))
                 {
-                	
-//                	playerBody = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.DynamicBody, FIXTURE_DEF);
                 	levelObject = new Sprite(x, y, resourcesManager.coin_region, vbom)
                 	{
                 	    @Override
@@ -250,6 +261,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                                 levelCompleteWindow.display(StarsCount.TWO, GameScene.this, camera);
                                 this.setVisible(false);
                                 this.setIgnoreUpdate(true);
+                                gameOverDisplayed = false;
                             }
                         }
                     };
@@ -386,7 +398,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     	control.getControlBase().setScaleCenter(0, 128);
     	control.getControlBase().setScale(1.25f);
     	control.getControlKnob().setScale(1.25f);
-    	control.setAnchorCenter(0, 0);
     	control.refreshControlKnobPosition();
     	setChildScene(control);
     }

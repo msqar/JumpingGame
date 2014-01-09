@@ -54,8 +54,8 @@ public class ResourcesManager
     public BuildableBitmapTextureAtlas gameTextureAtlas;
         
     // Game Texture Regions
-    public ITextureRegion platform1_region;
-    public ITextureRegion platform2_region;
+    public ITextureRegion dirt_region;
+    public ITextureRegion grass_region;
     public ITextureRegion platform3_region;
     public ITextureRegion coin_region;
     
@@ -131,8 +131,8 @@ public class ResourcesManager
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
         gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 1024, 1024, TextureOptions.BILINEAR);
         
-        platform1_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform1.png");
-        platform2_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform2.png");
+        dirt_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "dirt.png");
+        grass_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "grass.png");
         platform3_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform3.png");
         coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin.png");
         player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 3, 1);
