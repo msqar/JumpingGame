@@ -214,8 +214,8 @@ public class ResourcesManager
     private void loadMenuFonts()
     {
         FontFactory.setAssetBasePath("fonts/");
-    	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-        font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "orange juice 2.0.ttf", 50, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.BLACK_ABGR_PACKED_INT);
+    	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+        font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mariobros-font.ttf", 20, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.BLACK_ABGR_PACKED_INT);
         font.load();
     }
     
