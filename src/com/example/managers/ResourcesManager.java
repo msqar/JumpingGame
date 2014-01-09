@@ -2,6 +2,8 @@ package com.example.managers;
 
 import java.io.IOException;
 
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.entity.primitive.vbo.IRectangleVertexBufferObject;
@@ -41,9 +43,7 @@ public class ResourcesManager
     public ITextureRegion splash_region;
     private BitmapTextureAtlas splashTextureAtlas;
     
-    public ITextureRegion menu_background_region;
-    public ITextureRegion play_region;
-    public ITextureRegion options_region;
+
         
     private BuildableBitmapTextureAtlas menuTextureAtlas;
     
@@ -52,7 +52,11 @@ public class ResourcesManager
     
     // Game Texture
     public BuildableBitmapTextureAtlas gameTextureAtlas;
-        
+    
+    //---------------------------------------------
+    // TEXTURES & TEXTURE REGIONS
+    //---------------------------------------------
+    
     // Game Texture Regions
     public ITextureRegion dirt_region;
     public ITextureRegion grass_region;
@@ -74,10 +78,21 @@ public class ResourcesManager
 	
 	public ITextureRegion parallax_game_background_region;
 	public ITextureRegion parallax_game_background_clouds_region;
+	
+	// Tiles
+	
+    public ITextureRegion menu_background_region;
+    public ITextureRegion play_region;
+    public ITextureRegion options_region;
     
     //---------------------------------------------
-    // TEXTURES & TEXTURE REGIONS
+    // SOUND & MUSIC
     //---------------------------------------------
+    
+    public Sound grab_coin_sound;
+    public Sound level_completed_sound;
+    public Sound mario_game_over_sound;
+    public Sound mario_jump_sound;
     
     //---------------------------------------------
     // CLASS LOGIC
@@ -173,7 +188,20 @@ public class ResourcesManager
     
     private void loadGameAudio()
     {
-        
+    	SoundFactory.setAssetBasePath("mfx/");
+    	try {
+			grab_coin_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/grab_coin.mp3");
+			level_completed_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/level_completed.mp3");
+		    mario_game_over_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/mario_game_over.mp3");
+		    mario_jump_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/mario_jump.mp3");		
+			
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public void loadSplashScreen()

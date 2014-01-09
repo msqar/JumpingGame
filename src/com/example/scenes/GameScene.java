@@ -159,6 +159,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         score += i;
         scoreText.setText("Score: " + score);
         amountOfCoinsGrabbed++;
+        ResourcesManager.getInstance().grab_coin_sound.setVolume(5f);
+        ResourcesManager.getInstance().grab_coin_sound.play();
     }
     
     private void createPhysics()
@@ -256,6 +258,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     	{
                     	    if (!gameOverDisplayed)
                     	    {
+                    	    	ResourcesManager.getInstance().mario_game_over_sound.play();
                     	        displayGameOverText();
                     	    }
                     	}
@@ -274,11 +277,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 
                             if (player.collidesWith(this))
                             {
+                            	// Removing player from screen to avoid losing and winning at the same time lol
+                            	player.detachSelf();
+                            	physicsWorld.unregisterPhysicsConnector(physicsWorld.getPhysicsConnectorManager().findPhysicsConnectorByShape(player));
+                            	
                             	// Checking how many stars the player has earned based on how many he grabbed
-                            	System.out.println(amountOfCoinsGrabbed + "  " + TOTAL_AMOUNT_OF_COINS);
                             	float starCount = (float) amountOfCoinsGrabbed / TOTAL_AMOUNT_OF_COINS;
-                            	System.out.println(starCount + " << starCount");
                             	StarsCount count = null;
+                            	
                             	if(starCount <= 0.34f) {
                             		count = StarsCount.ONE;
                             	}else if(starCount <= 0.67f) {
@@ -289,12 +295,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                             		count = StarsCount.ONE;
                             	}
                             	
-                            	System.out.println(count.name());
-                            	
                                 levelCompleteWindow.display(count, GameScene.this, camera);
                                 this.setVisible(false);
                                 this.setIgnoreUpdate(true);
-                                gameOverDisplayed = false;
+
+                                ResourcesManager.getInstance().level_completed_sound.play();
                             }
                         }
                     };

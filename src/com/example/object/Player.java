@@ -80,6 +80,7 @@ public abstract class Player extends AnimatedSprite
             return; 
         }
         body.setLinearVelocity(new Vector2(body.getLinearVelocity().x, 12)); 
+        ResourcesManager.getInstance().mario_jump_sound.play();
     }
     
     public void increaseFootContacts()
@@ -98,6 +99,10 @@ public abstract class Player extends AnimatedSprite
 
 	public void setPlayerBody(Body body) {
 		this.body = body;
-	}   
+	}
+	
+	public void stopMoving() {
+		this.body.setLinearVelocity(0, 0);
+	}
 
 }
