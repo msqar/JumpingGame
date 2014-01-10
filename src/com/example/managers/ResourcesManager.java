@@ -2,6 +2,8 @@ package com.example.managers;
 
 import java.io.IOException;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
@@ -65,14 +67,18 @@ public class ResourcesManager
     
     // Player
     public ITiledTextureRegion player_region;
+    public ITiledTextureRegion mario_region;
     
     // Level Complete Window
     public ITextureRegion complete_window_region;
     public ITiledTextureRegion complete_stars_region;
     
     // Controls
-	public ITextureRegion control_knob_region;
-	public ITextureRegion control_base_region;
+//	public ITextureRegion control_knob_region;
+//	public ITextureRegion control_base_region;
+	public ITextureRegion control_left_arrow_region;
+	public ITextureRegion control_right_arrow_region;
+	public ITextureRegion control_a_button_region;
 	
 	// Background
 	
@@ -84,6 +90,7 @@ public class ResourcesManager
     public ITextureRegion menu_background_region;
     public ITextureRegion play_region;
     public ITextureRegion options_region;
+    public ITextureRegion brick_floor_region;
     
     //---------------------------------------------
     // SOUND & MUSIC
@@ -93,6 +100,7 @@ public class ResourcesManager
     public Sound level_completed_sound;
     public Sound mario_game_over_sound;
     public Sound mario_jump_sound;
+    public Music mario_song_music;
     
     //---------------------------------------------
     // CLASS LOGIC
@@ -151,17 +159,29 @@ public class ResourcesManager
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/game/");
         gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR);
         
+        // Tiles
         dirt_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "dirt.png");
         grass_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "grass.png");
+        brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "cubo_piso.gif");
         platform3_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform3.png");
+        
+        // Extras
         coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin.png");
         player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 3, 1);
+        mario_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "mario.png", 7, 2);
+        
+        // Game States
         complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "levelCompleteWindow.png");
         complete_stars_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "star.png", 2, 1);
 
-        control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
-        control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");
+        // Controllers        
+//        control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
+//        control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");        
+        control_left_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "left_arrow.png");
+        control_right_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "right_arrow.png");
+        control_a_button_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "a_button.png");
         
+        // Background
         parallax_game_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "game_background.png");
         parallax_game_background_clouds_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "game_background_clouds.png");
         
@@ -190,11 +210,13 @@ public class ResourcesManager
     {
     	SoundFactory.setAssetBasePath("mfx/");
     	try {
-			grab_coin_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/grab_coin.mp3");
+//    		mario_song_music = MusicFactory.createMusicFromAsset(SceneManager.getInstance().getEngine().getMusicManager(), activity, "game/mario_song.ogg");
+//    		mario_song_music.setLooping(true);
+    		grab_coin_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/grab_coin.mp3");
 			level_completed_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/level_completed.mp3");
 		    mario_game_over_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/mario_game_over.mp3");
 		    mario_jump_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/mario_jump.mp3");		
-			
+		    
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -2,12 +2,7 @@ package com.example.scenes;
 
 import java.io.IOException;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import org.andengine.engine.camera.hud.HUD;
-import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
-import org.andengine.engine.camera.hud.controls.BaseOnScreenControl.IOnScreenControlListener;
-import org.andengine.engine.camera.hud.controls.DigitalOnScreenControl;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
@@ -67,12 +62,13 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	    
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_DIRT = "dirt";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_GRASS = "grass";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR = "brick_floor";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1 = "platform1";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2 = "platform2";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3 = "platform3";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN = "coin";
 	
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLAYER = "player";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLAYER = "mario";
 	
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_LEVEL_COMPLETE = "levelComplete";
     
@@ -81,7 +77,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private int amountOfCoinsGrabbed = 0;
 	private static final int TOTAL_AMOUNT_OF_COINS = 3;
 	
-	private boolean firstTouch = false;
+//	private boolean firstTouch = false;
 	
 	// Handle GAME OVER
 	private Text gameOverText;
@@ -120,7 +116,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     {
         camera.setHUD(null);
         camera.setCenter(400, 240);
-//        camera.setCenter(GameActivity.getScreenWidth() / 2, GameActivity.getScreenHeight() / 2);
         // TODO code responsible for disposing scene
         // removing all game scene objects.
         camera.setChaseEntity(null);
@@ -166,7 +161,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     private void createPhysics()
     {
     	physicsWorld = new FixedStepPhysicsWorld(60, new Vector2(0, -17), false); 
-        physicsWorld.setContactListener(contactListener());
+    	physicsWorld.setContactListener(contactListener());
         registerUpdateHandler(physicsWorld);
     }
     
@@ -210,6 +205,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     levelObject = new Sprite(x, y, resourcesManager.grass_region, vbom);
                     PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("grass");
                 }
+                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR))
+                {
+                    levelObject = new Sprite(x, y, resourcesManager.brick_floor_region, vbom);
+                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("brick_floor");
+                }
                 
 //                if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1))
 //                {
@@ -252,7 +252,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLAYER))
                 {
                     player = new Player(x, y, vbom, camera, physicsWorld)
-                    {
+                    
+                    {                   	
                     	@Override
                     	public void onDie()
                     	{
@@ -265,6 +266,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 
                     };
                     levelObject = player;
+                    levelObject.setScale(1.5f);
                 } 
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_LEVEL_COMPLETE))
                 {
@@ -323,15 +325,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     {
     	if (pSceneTouchEvent.isActionDown())
         {
-            if (!firstTouch)
-            {
-                player.setRunning();
-                firstTouch = true;
-            }
-            else
-            {
-                player.jump();
-            }
+           // Do nothing for now
         }
         return false;
     }
@@ -360,16 +354,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 
                 if (x1.getBody().getUserData() != null && x2.getBody().getUserData() != null)
                 {
-                    if (x2.getBody().getUserData().equals("player"))
+                    if (x2.getBody().getUserData().equals("mario"))
                     {
                         player.increaseFootContacts();
                     }
                 }
-                if (x1.getBody().getUserData().equals("platform3") && x2.getBody().getUserData().equals("player"))
+                if (x1.getBody().getUserData().equals("platform3") && x2.getBody().getUserData().equals("mario"))
                 {
                     x1.getBody().setType(BodyType.DynamicBody);
                 }
-                if (x1.getBody().getUserData().equals("platform2") && x2.getBody().getUserData().equals("player"))
+                if (x1.getBody().getUserData().equals("platform2") && x2.getBody().getUserData().equals("mario"))
                 {
                     engine.registerUpdateHandler(new TimerHandler(0.2f, new ITimerCallback()
                     {                                    
@@ -390,10 +384,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 
                 if (x1.getBody().getUserData() != null && x2.getBody().getUserData() != null)
                 {
-                    if (x2.getBody().getUserData().equals("player"))
+                    if (x2.getBody().getUserData().equals("mario"))
                     {
                         player.decreaseFootContacts();
+//                        if(player.getFootContacts() > 0) {
+//                        	player.jumpingEnd();
+//                        }
                     }
+                    
                 }
             }
 
@@ -411,39 +409,108 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     } 
     
     private void createControls() {
-    	//final DigitalOnScreenControl control = new DigitalOnScreenControl(20, camera.getHeight() - ResourcesManager.getInstance().control_base_region.getHeight(), 
-    	final DigitalOnScreenControl control = new DigitalOnScreenControl(300, 300,
-    			camera, ResourcesManager.getInstance().control_base_region, ResourcesManager.getInstance().control_knob_region, 
-    			0.1f, vbom, new IOnScreenControlListener() {					
-					public void onControlChange(BaseOnScreenControl pBaseOnScreenControl, float x, float y) {
-						if(player.getPlayerBody().getLinearVelocity().x > -8 && player.getPlayerBody().getLinearVelocity().x < 8) {
-							if(x > 0) { // right
-								player.getPlayerBody().setLinearVelocity(8.0f, player.getPlayerBody().getLinearVelocity().y);
-							}else if (x < 0) { // left
-								player.getPlayerBody().setLinearVelocity(-8.0f, player.getPlayerBody().getLinearVelocity().y);
-							}else { // stop moving
-								player.getPlayerBody().setLinearVelocity(0.0f, player.getPlayerBody().getLinearVelocity().y);
-							}
-						}
-						if(y > 0) {
-							player.jump();
-						}
-					}
-				});
     	
-    	control.getControlBase().setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-    	control.getControlBase().setAlpha(0.5f);
-    	control.getControlBase().setScaleCenter(0, 128);
-    	control.getControlBase().setScale(1.25f);
-    	control.getControlKnob().setScale(1.25f);
-    	control.refreshControlKnobPosition();
-    	setChildScene(control);
-    }
-//	@Override
-//	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
-    
+		final Sprite leftArrowButton = new Sprite(21, 21, ResourcesManager.getInstance().control_left_arrow_region, vbom) {
+		
+		        @Override
+		        public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
+		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+	                if (pSceneTouchEvent.isActionDown()) {
+                        if (!player.isAnimationRunning())
+                            player.setFlippedHorizontal(true);
+                        	player.setRunningLeft();
+	
+	                } else if (pSceneTouchEvent.isActionUp()) {		                        
+                        if (player.isJumping()){
+                            player.stopAnimation(5);
+                        }else{
+                            player.stopAnimation(0);
+                    		player.stopMoving();
+                        }
+                }		
+                return true;
+	        };
+		};
+		
+		final Sprite rightArrowButton = new Sprite(110, 21, ResourcesManager.getInstance().control_right_arrow_region, vbom) {
+		        @Override
+		        public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
+		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+		
+		                if (pSceneTouchEvent.isActionDown()) {
+	                        if (!player.isAnimationRunning())
+	                        	if(player.isFlippedHorizontal()) {
+	                        		player.setFlippedHorizontal(false);
+	                        	}
+	                        	player.setRunningRight();	                        	
+		
+		                } else if (pSceneTouchEvent.isActionUp()) {		                        
+	                        if (player.isJumping()){
+                                player.stopAnimation(5);
+	                        }else{
+                                player.stopAnimation(0);
+                        		player.stopMoving();
+	                        }
+	                }		
+	                return true;
+		        };
+		};
+		
+		final Sprite aButton = new Sprite(700, 50, ResourcesManager.getInstance().control_a_button_region, vbom) {
+			
+		        @Override
+		        public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
+		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+		        	
+		        	if (pSceneTouchEvent.isActionDown()) {
+//			        	if (player.getFootContacts() > 0)
+//		        		player.getPlayerBody().applyLinearImpulse(new Vector2(0, 8), player.getPlayerBody().getPosition());
+	                    player.jump();
+			        } else if (pSceneTouchEvent.isActionUp()) {
+			        				        		
+			        }
+			        return true;
+		        };
+		};
+		
+		leftArrowButton.setScale(0.5f);
+		rightArrowButton.setScale(0.5f);
+		aButton.setScale(0.5f);
+		
+		gameHUD.attachChild(aButton);
+		gameHUD.attachChild(leftArrowButton);
+		gameHUD.attachChild(rightArrowButton);		
+
+		gameHUD.registerTouchArea(leftArrowButton);
+		gameHUD.registerTouchArea(rightArrowButton);
+		gameHUD.registerTouchArea(aButton);
+    	//final DigitalOnScreenControl control = new DigitalOnScreenControl(20, camera.getHeight() - ResourcesManager.getInstance().control_base_region.getHeight(), 
+//    	final DigitalOnScreenControl control = new DigitalOnScreenControl(300, 300,
+//    			camera, ResourcesManager.getInstance().control_base_region, ResourcesManager.getInstance().control_knob_region, 
+//    			0.1f, vbom, new IOnScreenControlListener() {					
+//					public void onControlChange(BaseOnScreenControl pBaseOnScreenControl, float x, float y) {
+//						if(player.getPlayerBody().getLinearVelocity().x > -8 && player.getPlayerBody().getLinearVelocity().x < 8) {
+//							if(x > 0) { // right
+//								player.getPlayerBody().setLinearVelocity(8.0f, player.getPlayerBody().getLinearVelocity().y);
+//							}else if (x < 0) { // left
+//								player.getPlayerBody().setLinearVelocity(-8.0f, player.getPlayerBody().getLinearVelocity().y);
+//							}else { // stop moving
+//								player.getPlayerBody().setLinearVelocity(0.0f, player.getPlayerBody().getLinearVelocity().y);
+//							}
+//						}
+//						if(y > 0) {
+//							player.jump();
+//						}
+//					}
+//				});
+//    	
+//    	control.getControlBase().setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+//    	control.getControlBase().setAlpha(0.5f);
+//    	control.getControlBase().setScaleCenter(0, 128);
+//    	control.getControlBase().setScale(1.25f);
+//    	control.getControlKnob().setScale(1.25f);
+//    	control.refreshControlKnobPosition();
+//    	setChildScene(control);
+    }    
 }
 
