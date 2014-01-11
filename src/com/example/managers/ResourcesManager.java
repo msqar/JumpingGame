@@ -25,6 +25,8 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
 
+import android.net.NetworkInfo.DetailedState;
+
 import com.example.testingand.GameActivity;
 
 
@@ -70,7 +72,6 @@ public class ResourcesManager
     public ITextureRegion coin_picked_unit_region;
     
     // Player
-    public ITiledTextureRegion player_region;
     public ITiledTextureRegion mario_region;
     
     // Level Complete Window
@@ -87,6 +88,11 @@ public class ResourcesManager
 	// Background Game
 	public ITextureRegion parallax_game_background_region;
 	public ITextureRegion parallax_game_background_clouds_region;
+	
+	// Background Extra Decoration
+	public ITextureRegion mountain_one_region;
+	public ITextureRegion triple_bush_region;
+	
 	
 	// Background Menu
     public ITextureRegion menu_background_region;
@@ -170,7 +176,7 @@ public class ResourcesManager
     	{
     		Debug.e(e);
     	}
-    }
+    }    
     
     private void loadMenuAudio()
     {
@@ -180,10 +186,8 @@ public class ResourcesManager
     		scream_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "menu/menu_scream.mp3");
 		    
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}        
     }
@@ -194,30 +198,33 @@ public class ResourcesManager
         gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR);
         
         // Tiles
-        brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "brick.gif");
+        brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/brick.png");
         
         // Extras
         box_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "flipping_coin.png", 4, 1);
-        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "simple_coin.gif");
+        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "simple_coin.png");
         coin_picked_unit_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin_picked_unit.png");
         
-        player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 3, 1);
         mario_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "mario.png", 7, 2);
         
         // Game States
-        complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "levelCompleteWindow.png");
+        complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "states/levelCompleteWindow.png");
         complete_stars_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "star.png", 2, 1);
 
         // Controllers        
-//        control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_knob.png");
-//        control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "onscreen_control_base.png");        
-        control_left_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "left_arrow.png");
-        control_right_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "right_arrow.png");
-        control_a_button_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "a_button.png");
+//        control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/onscreen_control_knob.png");
+//        control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/onscreen_control_base.png");        
+        control_left_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/left_arrow.png");
+        control_right_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/right_arrow.png");
+        control_a_button_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/a_button.png");
         
         // Background
-        parallax_game_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "game_background.png");
-        parallax_game_background_clouds_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "game_background_clouds.png");
+        parallax_game_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/game_background.png");
+        parallax_game_background_clouds_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/game_background_clouds.png");
+        
+        // Background Extras
+        mountain_one_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/mountain.png");
+        triple_bush_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/triple_bush.png");
         
         try 
         {
@@ -232,7 +239,21 @@ public class ResourcesManager
     
     public void unloadGameTextures()
     {
-        // TODO (Since we did not create any textures for game scene yet)    	
+    	gameTextureAtlas.unload();
+    	brick_floor_region = null;
+    	box_coin_region = null;
+    	simple_coin_region = null;
+    	coin_picked_unit_region = null;
+    	mario_region = null;
+    	complete_window_region = null;
+    	complete_stars_region = null;
+    	control_left_arrow_region = null;
+    	control_right_arrow_region = null;
+    	control_a_button_region = null;
+    	parallax_game_background_region = null;
+    	parallax_game_background_clouds_region = null;
+    	mountain_one_region = null;
+    	triple_bush_region = null;
     }
     
     private void loadGameFonts()

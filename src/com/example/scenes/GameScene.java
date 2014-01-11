@@ -63,9 +63,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
 	    
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_DIRT = "dirt";
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_GRASS = "grass";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR = "brick_floor";
+	
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_MOUNTAIN_ONE = "mountain_one";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_TRIPLE_BUSH = "triple_bush";
+	
+	
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1 = "platform1";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2 = "platform2";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3 = "platform3";
@@ -151,6 +154,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		parallaxLayerMidSprite.setOffsetCenter(0, 0);
 		parallaxLayerMidSprite.setScale(1.0f);
 		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-5.0f, parallaxLayerMidSprite));
+		
     }
     
     private void createHUD()
@@ -247,6 +251,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 //                    body.setUserData("platform3");
 //                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
 //                }
+                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_MOUNTAIN_ONE)) {
+                	levelObject = new Sprite(x, y, resourcesManager.mountain_one_region, vbom);
+                }
+                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_TRIPLE_BUSH)) {
+                	levelObject = new Sprite(x, y, resourcesManager.triple_bush_region, vbom);
+                }
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN))
                 {               	
                 	
@@ -543,7 +553,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     
 	private void loadMusic() {
 		ResourcesManager.getInstance().mario_song_music.play();	
-		ResourcesManager.getInstance().mario_song_music.setVolume(0.7f);
+		ResourcesManager.getInstance().mario_song_music.setVolume(0.5f);
 		ResourcesManager.getInstance().mario_song_music.setLooping(true);	
 	}
 	
