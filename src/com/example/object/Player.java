@@ -21,16 +21,9 @@ public abstract class Player extends AnimatedSprite
 	    
 	private Body body;
 	private boolean isJumping = false;
-	private boolean isMoving = false;
 	private int footContacts = 0;
 	
-	private String lastDirection = null;
-	
-	private enum PlayerDirection {
-		LEFT,
-		RIGHT
-	};
-	
+
     // ---------------------------------------------
     // CONSTRUCTOR
     // ---------------------------------------------
@@ -68,8 +61,6 @@ public abstract class Player extends AnimatedSprite
     
     public void setRunningRight()
     {
-    	isMoving = true;
-    	lastDirection = "RIGHT";
     	body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));    	
         final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
         animate(PLAYER_ANIMATE, 1, 3, true);
@@ -77,8 +68,6 @@ public abstract class Player extends AnimatedSprite
     
     public void setRunningLeft()
     {
-    	isMoving = true;
-    	lastDirection = "LEFT";
     	body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));    	
         final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
         animate(PLAYER_ANIMATE, 1, 3, true);
@@ -96,31 +85,12 @@ public abstract class Player extends AnimatedSprite
         
         animate(PLAYER_ANIMATE, 4, 5, false);
         
-//        body.setLinearVelocity(new Vector2(body.getLinearVelocity().x, 8)); 
+//      body.setLinearVelocity(new Vector2(body.getLinearVelocity().x, 8)); 
         body.applyLinearImpulse(new Vector2(0, 8), body.getPosition());
         ResourcesManager.getInstance().mario_jump_sound.play();
     }
     
-    public void jumpingEnd() {
-        this.isJumping = false;
-        if (isMoving) {
-            if (PlayerDirection.LEFT.toString().equalsIgnoreCase(lastDirection)) {
-                animate(new long[] { 200, 200, 200 }, 7, 9, true);
-                body.setLinearVelocity(new Vector2(-5, 0));
-            } else if (PlayerDirection.RIGHT.toString().equalsIgnoreCase(lastDirection)) {
-                animate(new long[] { 200, 200, 200 }, 1, 3, true);
-                body.setLinearVelocity(new Vector2(5, 0));
-            }
-        } else {
-            if (PlayerDirection.LEFT.toString().equalsIgnoreCase(lastDirection)) {
-            	stopAnimation(5);
-            } else if (PlayerDirection.RIGHT.toString().equalsIgnoreCase(lastDirection)) {
-                stopAnimation(5);
-            }
-        }
-    }
-    
-    public void increaseFootContacts()
+   public void increaseFootContacts()
     {
         footContacts++;
     }

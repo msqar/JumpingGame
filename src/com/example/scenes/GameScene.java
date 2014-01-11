@@ -16,7 +16,6 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
-import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.touch.TouchEvent;
@@ -43,6 +42,7 @@ import com.example.extras.LevelCompleteWindow.StarsCount;
 import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager;
 import com.example.managers.SceneManager.SceneType;
+import com.example.object.SimpleCoin;
 import com.example.object.Player;
 import com.example.testingand.GameActivity;
 
@@ -50,8 +50,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 {
 	
 	private HUD gameHUD;
-	private Text scoreText;
-	private int score = 0;
+	private Text totalCoinsText;
+	private Text totalScoreText;
+	private Text marioTitleText;
+	
+	public static int coins = 0;
+	public static int totalScore = 0;
 	private PhysicsWorld physicsWorld;
 	
 	// Variables for game
@@ -65,7 +69,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR = "brick_floor";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1 = "platform1";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2 = "platform2";
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3 = "platform3";
+//	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3 = "platform3";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN = "coin";
 	
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLAYER = "mario";
@@ -73,6 +77,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_LEVEL_COMPLETE = "levelComplete";
     
 	private Player player;
+//	private BoxCoin boxCoin;
+	private SimpleCoin simpleCoin;
 	
 	private int amountOfCoinsGrabbed = 0;
 	private static final int TOTAL_AMOUNT_OF_COINS = 3;
@@ -89,19 +95,29 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	@Override
 	public void createScene()
 	{
+		initializeVars();
 	    createBackground();
 	    createHUD();
 	    createControls();
 	    createPhysics();
 	    loadLevel(1);
+	    loadMusic();
 	    createGameOverText();
 	    setOnSceneTouchListener(this);
 	    levelCompleteWindow = new LevelCompleteWindow(vbom);
 	}
 
+	private void initializeVars() {
+		coins = 0;
+		totalScore = 0;
+	}
+
 	@Override
 	public void onBackKeyPressed()
 	{
+		if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+    		ResourcesManager.getInstance().mario_song_music.stop();
+    	}
 	    SceneManager.getInstance().loadMenuScene(engine);
 	}
 
@@ -132,7 +148,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		
 		final Sprite parallaxLayerMidSprite = new Sprite(0, GameActivity.CAMERA_HEIGHT - ResourcesManager.getInstance().parallax_game_background_clouds_region.getHeight() - 80, ResourcesManager.getInstance().parallax_game_background_clouds_region, vbom);
 		parallaxLayerMidSprite.setOffsetCenter(0, 0);
-		parallaxLayerMidSprite.setScale(1.5f);
+		parallaxLayerMidSprite.setScale(1.0f);
 		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-5.0f, parallaxLayerMidSprite));
     }
     
@@ -141,22 +157,32 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         gameHUD = new HUD();
         
         // CREATE SCORE TEXT
-        scoreText = new Text(20, 450, resourcesManager.font, "Score: 0123456789", new TextOptions(HorizontalAlign.LEFT), vbom);
-        scoreText.setAnchorCenter(0, 0);
-        scoreText.setText("Score: 0");
-        gameHUD.attachChild(scoreText);
+        marioTitleText = new Text(20, 430, resourcesManager.font, "MARIO", new TextOptions(HorizontalAlign.LEFT), vbom);
+        marioTitleText.setAnchorCenter(0, 0);
+        marioTitleText.setText("MARIO");
+        
+        totalScoreText = new Text(20, 400, resourcesManager.font, "0123456789", new TextOptions(HorizontalAlign.LEFT), vbom);
+        totalScoreText.setAnchorCenter(0, 0);
+        totalScoreText.setText("000000");
+        
+        totalCoinsText = new Text(250, 400, resourcesManager.font, "0123456789", new TextOptions(HorizontalAlign.LEFT), vbom);
+        totalCoinsText.setAnchorCenter(0, 0);
+        totalCoinsText.setText("x0" + coins);
+        
+        gameHUD.attachChild(totalCoinsText);
+        gameHUD.attachChild(marioTitleText);
+        gameHUD.attachChild(totalScoreText);
         
         camera.setHUD(gameHUD);        
     }
     
-    private void addToScore(int i)
-    {
-        score += i;
-        scoreText.setText("Score: " + score);
-        amountOfCoinsGrabbed++;
-        ResourcesManager.getInstance().grab_coin_sound.setVolume(5f);
-        ResourcesManager.getInstance().grab_coin_sound.play();
-    }
+//    private void addToScore(int i)
+//    {
+//        score += i;
+//        scoreText.setText("Score: " + score);        
+//        ResourcesManager.getInstance().grab_coin_sound.setVolume(1.0f);
+//        ResourcesManager.getInstance().grab_coin_sound.play();
+//    }
     
     private void createPhysics()
     {
@@ -223,31 +249,33 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 //                    body.setUserData("platform2");
 //                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
 //                }
-                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3))
-                {
-                    levelObject = new Sprite(x, y, resourcesManager.platform3_region, vbom);
-                    final Body body = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF);
-                    body.setUserData("platform3");
-                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
-                }
+//                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM3))
+//                {
+//                    levelObject = new Sprite(x, y, resourcesManager.platform3_region, vbom);
+//                    final Body body = PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF);
+//                    body.setUserData("platform3");
+//                    physicsWorld.registerPhysicsConnector(new PhysicsConnector(levelObject, body, true, false));
+//                }
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN))
-                {
-                	levelObject = new Sprite(x, y, resourcesManager.coin_region, vbom)
+                {               	
+                	
+                	simpleCoin = new SimpleCoin(x, y, vbom, camera, physicsWorld)
                 	{
                 	    @Override
                 	    protected void onManagedUpdate(float pSecondsElapsed) 
-                	    {
+                	    {                	    	              	    	
                 	        super.onManagedUpdate(pSecondsElapsed);
-
                 	        if (player.collidesWith(this))
                 	        {                	        	
-                	            addToScore(10);
+                	            simpleCoin.addToScore(totalCoinsText, totalScoreText);
                 	            this.setVisible(false);
                 	            this.setIgnoreUpdate(true);
+                	            amountOfCoinsGrabbed++;
                 	        }
                 	    }
                 	};
-                    levelObject.registerEntityModifier(new LoopEntityModifier(new ScaleModifier(1, 1, 1.3f)));
+                	levelObject = simpleCoin;
+//                  levelObject.registerEntityModifier(new LoopEntityModifier(new ScaleModifier(1, 1, 1.3f)));
                 }
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLAYER))
                 {
@@ -259,6 +287,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     	{
                     	    if (!gameOverDisplayed)
                     	    {
+                    	    	// Stopping mario song
+                    	    	if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+                    	    		ResourcesManager.getInstance().mario_song_music.stop();
+                    	    	}
                     	    	ResourcesManager.getInstance().mario_game_over_sound.play();
                     	        displayGameOverText();
                     	    }
@@ -300,7 +332,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                                 levelCompleteWindow.display(count, GameScene.this, camera);
                                 this.setVisible(false);
                                 this.setIgnoreUpdate(true);
-
+                                
+                                // Stopping mario song
+                                if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+                    	    		ResourcesManager.getInstance().mario_song_music.stop();
+                    	    	}
                                 ResourcesManager.getInstance().level_completed_sound.play();
                             }
                         }
@@ -511,6 +547,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 //    	control.getControlKnob().setScale(1.25f);
 //    	control.refreshControlKnobPosition();
 //    	setChildScene(control);
-    }    
+    }   
+    
+	private void loadMusic() {
+		ResourcesManager.getInstance().mario_song_music.play();	
+		ResourcesManager.getInstance().mario_song_music.setVolume(0.7f);
+		ResourcesManager.getInstance().mario_song_music.setLooping(true);	
+	}
 }
 

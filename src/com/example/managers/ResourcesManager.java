@@ -62,8 +62,11 @@ public class ResourcesManager
     // Game Texture Regions
     public ITextureRegion dirt_region;
     public ITextureRegion grass_region;
-    public ITextureRegion platform3_region;
-    public ITextureRegion coin_region;
+//    public ITextureRegion platform3_region;    
+    
+    public ITiledTextureRegion box_coin_region;
+    public ITextureRegion simple_coin_region;
+    public ITextureRegion coin_picked_unit_region;
     
     // Player
     public ITiledTextureRegion player_region;
@@ -163,10 +166,13 @@ public class ResourcesManager
         dirt_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "dirt.png");
         grass_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "grass.png");
         brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "cubo_piso.gif");
-        platform3_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform3.png");
+//        platform3_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform3.png");
         
         // Extras
-        coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin.png");
+        box_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "coin.png", 4, 1);
+        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "moneda.gif");
+        coin_picked_unit_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin_picked_unit.png");
+        
         player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 3, 1);
         mario_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "mario.png", 7, 2);
         
@@ -203,15 +209,15 @@ public class ResourcesManager
     
     private void loadGameFonts()
     {
-        
+   
     }
     
     private void loadGameAudio()
     {
     	SoundFactory.setAssetBasePath("mfx/");
+    	MusicFactory.setAssetBasePath("mfx/");
     	try {
-//    		mario_song_music = MusicFactory.createMusicFromAsset(SceneManager.getInstance().getEngine().getMusicManager(), activity, "game/mario_song.ogg");
-//    		mario_song_music.setLooping(true);
+    		mario_song_music = MusicFactory.createMusicFromAsset(SceneManager.getInstance().getEngine().getMusicManager(), activity, "game/mario_song.ogg");
     		grab_coin_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/grab_coin.mp3");
 			level_completed_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/level_completed.mp3");
 		    mario_game_over_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "game/mario_game_over.mp3");
