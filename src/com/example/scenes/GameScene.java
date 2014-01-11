@@ -28,7 +28,6 @@ import org.andengine.util.level.simple.SimpleLevelLoader;
 import org.xml.sax.Attributes;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -267,7 +266,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 	        super.onManagedUpdate(pSecondsElapsed);
                 	        if (player.collidesWith(this))
                 	        {                	        	
-                	            simpleCoin.addToScore(totalCoinsText, totalScoreText);
+                	            simpleCoin.addToScore(totalCoinsText, totalScoreText);                	            
+                	            simpleCoin.pickedFromGroundShowPointsAnimation(x, y);
                 	            this.setVisible(false);
                 	            this.setIgnoreUpdate(true);
                 	            amountOfCoinsGrabbed++;
@@ -554,5 +554,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		ResourcesManager.getInstance().mario_song_music.setVolume(0.7f);
 		ResourcesManager.getInstance().mario_song_music.setLooping(true);	
 	}
+	
 }
 

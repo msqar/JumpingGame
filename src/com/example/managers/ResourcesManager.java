@@ -51,6 +51,8 @@ public class ResourcesManager
     
     // Responsible for Loading font
     public Font font;
+    public Font menu_font;
+    public Font loading_font;
     
     // Game Texture
     public BuildableBitmapTextureAtlas gameTextureAtlas;
@@ -62,6 +64,7 @@ public class ResourcesManager
     // Game Texture Regions
     public ITextureRegion dirt_region;
     public ITextureRegion grass_region;
+    public ITextureRegion brick_floor_region;
 //    public ITextureRegion platform3_region;    
     
     public ITiledTextureRegion box_coin_region;
@@ -83,27 +86,34 @@ public class ResourcesManager
 	public ITextureRegion control_right_arrow_region;
 	public ITextureRegion control_a_button_region;
 	
-	// Background
-	
+	// Background Game
 	public ITextureRegion parallax_game_background_region;
 	public ITextureRegion parallax_game_background_clouds_region;
 	
-	// Tiles
-	
+	// Background Menu
     public ITextureRegion menu_background_region;
+    public ITextureRegion menu_background_clouds_region;
+    public ITextureRegion menu_background_logo_region;
+    public ITextureRegion menu_background_revenge_region;
+    
+	// Menu Buttons    
     public ITextureRegion play_region;
-    public ITextureRegion options_region;
-    public ITextureRegion brick_floor_region;
+//    public ITextureRegion options_region;
+    
     
     //---------------------------------------------
     // SOUND & MUSIC
     //---------------------------------------------
     
+    // Game
     public Sound grab_coin_sound;
     public Sound level_completed_sound;
     public Sound mario_game_over_sound;
     public Sound mario_jump_sound;
     public Music mario_song_music;
+    
+    // Menu
+    public Sound its_me_mario_sound;
     
     //---------------------------------------------
     // CLASS LOGIC
@@ -114,6 +124,7 @@ public class ResourcesManager
         loadMenuGraphics();
         loadMenuAudio();
         loadMenuFonts();
+        loadLoadingFonts();
     }
     
     public void unloadMenuTextures()
@@ -136,10 +147,17 @@ public class ResourcesManager
     private void loadMenuGraphics()
     {
     	BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/menu/");
-    	menuTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 1024, 1024, TextureOptions.BILINEAR);
+    	menuTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR);
+    	
+        // Background
     	menu_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "menu_background.png");
-    	play_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "play.png");
-    	options_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "options.png");
+    	menu_background_clouds_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "menu_background_clouds.png");
+    	
+    	menu_background_logo_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "mario_bros_logo.png");
+    	menu_background_revenge_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "menu_revenge_subtitle.png");
+    	
+//    	play_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "play.png");
+//    	options_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(menuTextureAtlas, activity, "options.png");
     	       
     	try 
     	{
@@ -154,7 +172,17 @@ public class ResourcesManager
     
     private void loadMenuAudio()
     {
-        
+    	SoundFactory.setAssetBasePath("mfx/");
+    	try {
+    		its_me_mario_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "menu/its_me_mario.mp3");	
+		    
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}        
     }
 
     private void loadGameGraphics()
@@ -166,7 +194,6 @@ public class ResourcesManager
         dirt_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "dirt.png");
         grass_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "grass.png");
         brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "cubo_piso.gif");
-//        platform3_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "platform3.png");
         
         // Extras
         box_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "coin.png", 4, 1);
@@ -204,12 +231,15 @@ public class ResourcesManager
     
     public void unloadGameTextures()
     {
-        // TODO (Since we did not create any textures for game scene yet)
+        // TODO (Since we did not create any textures for game scene yet)    	
     }
     
     private void loadGameFonts()
     {
-   
+    	FontFactory.setAssetBasePath("fonts/");
+    	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+        font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mariobros-font.ttf", 20, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.WHITE_ABGR_PACKED_INT);
+        font.load();
     }
     
     private void loadGameAudio()
@@ -269,10 +299,22 @@ public class ResourcesManager
      */
     private void loadMenuFonts()
     {
-        FontFactory.setAssetBasePath("fonts/");
+    	FontFactory.setAssetBasePath("fonts/");
     	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
-        font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mariobros-font.ttf", 20, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.BLACK_ABGR_PACKED_INT);
-        font.load();
+    	
+//    	loading_font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mariobros-font.ttf", 20, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.WHITE_ABGR_PACKED_INT);        
+        menu_font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mario-mini.ttf", 12, true, Color.WHITE_ABGR_PACKED_INT, 0.0f, Color.BLACK_ABGR_PACKED_INT);
+//        loading_font.load();
+        menu_font.load();
+    }
+    
+    private void loadLoadingFonts() 
+    {
+    	FontFactory.setAssetBasePath("fonts/");
+    	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+    	
+    	loading_font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mariobros-font.ttf", 20, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.WHITE_ABGR_PACKED_INT);
+        loading_font.load();   	
     }
     
     //---------------------------------------------
