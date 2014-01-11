@@ -25,8 +25,6 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
 
-import android.net.NetworkInfo.DetailedState;
-
 import com.example.testingand.GameActivity;
 
 
@@ -68,7 +66,7 @@ public class ResourcesManager
 //    public ITextureRegion platform3_region;    
     
     public ITiledTextureRegion box_coin_region;
-    public ITextureRegion simple_coin_region;
+    public ITiledTextureRegion simple_coin_region;
     public ITextureRegion coin_picked_unit_region;
     
     // Player
@@ -100,11 +98,14 @@ public class ResourcesManager
     public ITextureRegion menu_background_logo_region;
     public ITextureRegion menu_background_revenge_region;
     
+    // Game HUD
+    public ITiledTextureRegion menu_hud_coin_region;
+    
     // Background Splash
     public ITextureRegion splash_background_andengine_region;
     
 	// Menu Buttons    
-    public ITextureRegion play_region;
+//    public ITextureRegion play_region;
 //    public ITextureRegion options_region;
     
     
@@ -202,7 +203,7 @@ public class ResourcesManager
         
         // Extras
         box_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "flipping_coin.png", 4, 1);
-        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "simple_coin.png");
+        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "simple_coin.png", 3, 1);
         coin_picked_unit_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin_picked_unit.png");
         
         mario_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "mario.png", 7, 2);
@@ -216,7 +217,8 @@ public class ResourcesManager
 //        control_base_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/onscreen_control_base.png");        
         control_left_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/left_arrow.png");
         control_right_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/right_arrow.png");
-        control_a_button_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/a_button.png");
+        control_a_button_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/a_button.png");    	
+    	menu_hud_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "hud/hud_coin.png", 3, 1);
         
         // Background
         parallax_game_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/game_background.png");

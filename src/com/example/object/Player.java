@@ -1,5 +1,7 @@
 package com.example.object;
 
+import java.util.ArrayList;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
@@ -10,6 +12,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.example.managers.ResourcesManager;
 
 public abstract class Player extends AnimatedSprite
@@ -75,7 +78,6 @@ public abstract class Player extends AnimatedSprite
     
     public void jump()
     {
-//    	isJumping = true;
         if (footContacts < 1) 
         {
             return; 
@@ -91,7 +93,17 @@ public abstract class Player extends AnimatedSprite
     }
     
     public void dieAnimation() {
-//    	animate();
+    	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };        
+        animate(PLAYER_ANIMATE, 6, 7, false);
+        body.applyLinearImpulse(new Vector2(0, 17), body.getPosition());
+        
+        ArrayList<Fixture> fixtureList = body.getFixtureList();
+        for (int i = 0; i < fixtureList.size(); i++) {
+			Fixture fix = fixtureList.get(i);
+			if(fix.getBody().getUserData().equals("mario")) {
+				body.destroyFixture(fix);
+			}
+		}
     }
     
     public void increaseFootContacts()

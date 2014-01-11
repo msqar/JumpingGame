@@ -4,6 +4,7 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.entity.modifier.FadeOutModifier;
 import org.andengine.entity.modifier.MoveYModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -15,7 +16,7 @@ import com.example.managers.ResourcesManager;
 import com.example.scenes.GameScene;
 import com.example.testingand.GameActivity;
 
-public class SimpleCoin extends Sprite {	
+public class SimpleCoin extends AnimatedSprite {	
 	
 	private Sprite coinScoreSprite;
 	private SequenceEntityModifier jumpMod;
@@ -24,10 +25,16 @@ public class SimpleCoin extends Sprite {
     public SimpleCoin(float pX, float pY, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld)
     {
         super(pX, pY, ResourcesManager.getInstance().simple_coin_region, vbo);
-        coinTextureRegion = ResourcesManager.getInstance().coin_picked_unit_region;   
+        coinTextureRegion = ResourcesManager.getInstance().coin_picked_unit_region;
+        animateCoin();
     }
     
-    public void addToScore(Text scoreCoinsText, Text totalScoreText)
+    private void animateCoin() {
+		final long[] ANIMATE_COIN = {500,500,500};
+		animate(ANIMATE_COIN, 0, 2, true);	
+	}
+
+	public void addToScore(Text scoreCoinsText, Text totalScoreText)
     {    	
     	GameScene.coins += 1;
         GameScene.totalScore += 200;

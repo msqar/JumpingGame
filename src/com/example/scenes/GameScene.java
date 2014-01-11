@@ -12,6 +12,7 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -52,6 +53,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private Text totalCoinsText;
 	private Text totalScoreText;
 	private Text marioTitleText;
+	private Text mapLevelText;
+	private Text timeTitleText;
 	
 	public static int coins = 0;
 	public static int totalScore = 0;
@@ -170,13 +173,29 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         totalScoreText.setAnchorCenter(0, 0);
         totalScoreText.setText("000000");
         
+        final AnimatedSprite coinHUDSprite = new AnimatedSprite(240, 410, resourcesManager.menu_hud_coin_region, vbom);
+        coinHUDSprite.setScale(1.2f);
+        final long[] ANIMATE_COIN_HUD = {900,900,900};
+        coinHUDSprite.animate(ANIMATE_COIN_HUD, 0, 2, true);
+        
         totalCoinsText = new Text(250, 400, resourcesManager.font, "0123456789", new TextOptions(HorizontalAlign.LEFT), vbom);
         totalCoinsText.setAnchorCenter(0, 0);
         totalCoinsText.setText("x0" + coins);
         
+        mapLevelText = new Text(380, 430, resourcesManager.font, "WORLD", new TextOptions(HorizontalAlign.LEFT), vbom);
+        mapLevelText.setAnchorCenter(0, 0);
+        mapLevelText.setText("WORLD");
+        
+        timeTitleText = new Text(550, 430, resourcesManager.font, "TIME", new TextOptions(HorizontalAlign.LEFT), vbom);
+        timeTitleText.setAnchorCenter(0, 0);
+        timeTitleText.setText("TIME");
+        
         gameHUD.attachChild(totalCoinsText);
+        gameHUD.attachChild(coinHUDSprite);
         gameHUD.attachChild(marioTitleText);
         gameHUD.attachChild(totalScoreText);
+        gameHUD.attachChild(mapLevelText);
+        gameHUD.attachChild(timeTitleText);
         
         camera.setHUD(gameHUD);        
     }
@@ -293,6 +312,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     	    	if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
                     	    		ResourcesManager.getInstance().mario_song_music.stop();
                     	    	}
+                    	    	
+                    	    	player.dieAnimation();
+                    	    	
                     	    	ResourcesManager.getInstance().mario_game_over_sound.play();
                     	        displayGameOverText();
                     	    }
