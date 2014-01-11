@@ -100,6 +100,8 @@ public class ResourcesManager
     
     // Game HUD
     public ITiledTextureRegion menu_hud_coin_region;
+    public ITextureRegion gamehud_music_on_region;
+    public ITextureRegion gamehud_music_off_region;
     
     // Background Splash
     public ITextureRegion splash_background_andengine_region;
@@ -219,6 +221,9 @@ public class ResourcesManager
         control_right_arrow_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/right_arrow.png");
         control_a_button_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/a_button.png");    	
     	menu_hud_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "hud/hud_coin.png", 3, 1);
+    	
+    	gamehud_music_on_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/sound_on_icon.png"); 
+    	gamehud_music_off_region =  BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/sound_off_icon.png"); 
         
         // Background
         parallax_game_background_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "map/game_background.png");
@@ -256,6 +261,9 @@ public class ResourcesManager
     	parallax_game_background_clouds_region = null;
     	mountain_one_region = null;
     	triple_bush_region = null;
+    	menu_hud_coin_region = null;
+    	gamehud_music_on_region = null;
+    	gamehud_music_off_region = null;
     }
     
     private void loadGameFonts()

@@ -59,6 +59,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	public static int coins = 0;
 	public static int totalScore = 0;
 	private PhysicsWorld physicsWorld;
+	public boolean soundOn = true;
 	
 	// Variables for game
 	private static final String TAG_ENTITY = "entity";
@@ -69,8 +70,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR = "brick_floor";
 	
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_MOUNTAIN_ONE = "mountain_one";
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_TRIPLE_BUSH = "triple_bush";
-	
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_TRIPLE_BUSH = "triple_bush";	
 	
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM1 = "platform1";
 //	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_PLATFORM2 = "platform2";
@@ -163,8 +163,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     private void createHUD()
     {
         gameHUD = new HUD();
-        
-        // CREATE SCORE TEXT
+
         marioTitleText = new Text(20, 430, resourcesManager.font, "MARIO", new TextOptions(HorizontalAlign.LEFT), vbom);
         marioTitleText.setAnchorCenter(0, 0);
         marioTitleText.setText("MARIO");
@@ -190,13 +189,37 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         timeTitleText.setAnchorCenter(0, 0);
         timeTitleText.setText("TIME");
         
+        final Sprite musicOffButton = new Sprite(750, 430, resourcesManager.gamehud_music_off_region, vbom);
+        musicOffButton.setScale(0.5f);
+        musicOffButton.setVisible(false);
+        final Sprite musicOnButton = new Sprite(750, 430, resourcesManager.gamehud_music_on_region, vbom) {
+        	@Override
+            public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY)
+            {
+        		if(pSceneTouchEvent.isActionDown()) {
+        			soundOn = !soundOn;
+                    this.setVisible(soundOn);
+                    musicOffButton.setVisible(!soundOn);
+                    if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+                    	ResourcesManager.getInstance().mario_song_music.pause();
+                    }else{
+                    	ResourcesManager.getInstance().mario_song_music.resume();
+                    }
+        		}
+				return true;               
+            }
+        };
+        musicOnButton.setScale(0.5f);
+        registerTouchArea(musicOnButton);        
+        
         gameHUD.attachChild(totalCoinsText);
         gameHUD.attachChild(coinHUDSprite);
         gameHUD.attachChild(marioTitleText);
         gameHUD.attachChild(totalScoreText);
         gameHUD.attachChild(mapLevelText);
         gameHUD.attachChild(timeTitleText);
-        
+        gameHUD.attachChild(musicOnButton);
+        gameHUD.attachChild(musicOffButton);
         camera.setHUD(gameHUD);        
     }
     
