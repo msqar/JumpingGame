@@ -43,7 +43,7 @@ public class ResourcesManager
     public IRectangleVertexBufferObject vbo;
     
     public ITextureRegion splash_region;
-    private BitmapTextureAtlas splashTextureAtlas;
+    private BuildableBitmapTextureAtlas splashTextureAtlas;
     
 
         
@@ -62,8 +62,6 @@ public class ResourcesManager
     //---------------------------------------------
     
     // Game Texture Regions
-    public ITextureRegion dirt_region;
-    public ITextureRegion grass_region;
     public ITextureRegion brick_floor_region;
 //    public ITextureRegion platform3_region;    
     
@@ -96,6 +94,9 @@ public class ResourcesManager
     public ITextureRegion menu_background_logo_region;
     public ITextureRegion menu_background_revenge_region;
     
+    // Background Splash
+    public ITextureRegion splash_background_andengine_region;
+    
 	// Menu Buttons    
     public ITextureRegion play_region;
 //    public ITextureRegion options_region;
@@ -114,6 +115,7 @@ public class ResourcesManager
     
     // Menu
     public Sound its_me_mario_sound;
+    public Sound scream_sound;
     
     //---------------------------------------------
     // CLASS LOGIC
@@ -174,7 +176,8 @@ public class ResourcesManager
     {
     	SoundFactory.setAssetBasePath("mfx/");
     	try {
-    		its_me_mario_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "menu/its_me_mario.mp3");	
+    		its_me_mario_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "menu/its_me_mario.mp3");
+    		scream_sound = SoundFactory.createSoundFromAsset(SceneManager.getInstance().getEngine().getSoundManager(), activity, "menu/menu_scream.mp3");
 		    
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
@@ -191,13 +194,11 @@ public class ResourcesManager
         gameTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR);
         
         // Tiles
-        dirt_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "dirt.png");
-        grass_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "grass.png");
-        brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "cubo_piso.gif");
+        brick_floor_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "brick.gif");
         
         // Extras
-        box_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "coin.png", 4, 1);
-        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "moneda.gif");
+        box_coin_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "flipping_coin.png", 4, 1);
+        simple_coin_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "simple_coin.gif");
         coin_picked_unit_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "coin_picked_unit.png");
         
         player_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "player.png", 3, 1);
@@ -265,9 +266,18 @@ public class ResourcesManager
     public void loadSplashScreen()
     {
     	BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-    	splashTextureAtlas = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
-    	splash_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(splashTextureAtlas, activity, "splash.png", 0, 0);
-    	splashTextureAtlas.load();
+    	splashTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+    	splash_background_andengine_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(splashTextureAtlas, activity, "andengine_logo.png");
+    	
+    	try 
+        {
+            this.splashTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
+            this.splashTextureAtlas.load();
+        } 
+        catch (final TextureAtlasBuilderException e)
+        {
+            Debug.e(e);
+        }
     }
     
     public void unloadSplashScreen()
@@ -301,10 +311,8 @@ public class ResourcesManager
     {
     	FontFactory.setAssetBasePath("fonts/");
     	final ITexture mainFontTexture = new BitmapTextureAtlas(activity.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
-    	
-//    	loading_font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mariobros-font.ttf", 20, true, Color.WHITE_ABGR_PACKED_INT, 1.0f, Color.WHITE_ABGR_PACKED_INT);        
+    	       
         menu_font = FontFactory.createStrokeFromAsset(activity.getFontManager(), mainFontTexture, activity.getAssets(), "mario-mini.ttf", 12, true, Color.WHITE_ABGR_PACKED_INT, 0.0f, Color.BLACK_ABGR_PACKED_INT);
-//        loading_font.load();
         menu_font.load();
     }
     

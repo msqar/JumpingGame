@@ -90,7 +90,11 @@ public abstract class Player extends AnimatedSprite
         ResourcesManager.getInstance().mario_jump_sound.play();
     }
     
-   public void increaseFootContacts()
+    public void dieAnimation() {
+//    	animate();
+    }
+    
+    public void increaseFootContacts()
     {
         footContacts++;
     }

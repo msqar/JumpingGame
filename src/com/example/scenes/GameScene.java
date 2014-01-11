@@ -117,7 +117,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
     		ResourcesManager.getInstance().mario_song_music.stop();
     	}
-	    SceneManager.getInstance().loadMenuScene(engine);
+		ResourcesManager.getInstance().mario_game_over_sound.stop();
+		ResourcesManager.getInstance().level_completed_sound.stop();
+		SceneManager.getInstance().loadMenuScene(engine);
 	}
 
     @Override
@@ -220,17 +222,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 
                 final Sprite levelObject;
                 
-                if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_DIRT))
-                {
-                    levelObject = new Sprite(x, y, resourcesManager.dirt_region, vbom);
-                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("dirt");
-                } 
-                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_GRASS))
-                {
-                    levelObject = new Sprite(x, y, resourcesManager.grass_region, vbom);
-                    PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("grass");
-                }
-                else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR))
+                if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_BRICK_FLOOR))
                 {
                     levelObject = new Sprite(x, y, resourcesManager.brick_floor_region, vbom);
                     PhysicsFactory.createBoxBody(physicsWorld, levelObject, BodyType.StaticBody, FIXTURE_DEF).setUserData("brick_floor");

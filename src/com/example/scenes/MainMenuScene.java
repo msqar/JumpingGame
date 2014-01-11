@@ -40,6 +40,7 @@ public class MainMenuScene extends BaseScene implements IOnMenuItemClickListener
 			@Override
 			public boolean onSceneTouchEvent(Scene pScene,
 					TouchEvent pSceneTouchEvent) {
+				ResourcesManager.getInstance().scream_sound.play();
 				SceneManager.getInstance().loadGameScene(engine);
 				return false;
 			}

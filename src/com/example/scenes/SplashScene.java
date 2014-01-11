@@ -1,33 +1,39 @@
 package com.example.scenes;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.util.GLState;
 
 import com.example.base.BaseScene;
+import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager.SceneType;
 
 public class SplashScene extends BaseScene
 {
 	
-	private Sprite splash;	
+	private Sprite andengineLogo;
 	
     @Override
     public void createScene()
     {
-    	splash = new Sprite(0, 0, resourcesManager.splash_region, vbom) {
-    	    @Override
-    	    protected void preDraw(GLState pGLState, Camera pCamera) 
-    	    {
-    	       super.preDraw(pGLState, pCamera);
-    	       pGLState.enableDither();
-    	    }
-    	};
-    	        
-    	splash.setScale(1.5f);
-    	splash.setPosition(400, 240);
-    	//splash.setPosition((GameActivity.getScreenWidth() / 2) - (splash_width / 2), (GameActivity.getScreenHeight() / 2) - (splash_height / 2));
-    	attachChild(splash);
+    	
+    	andengineLogo = new Sprite(400, 240, ResourcesManager.getInstance().splash_background_andengine_region, vbom)
+	    {
+	        @Override
+	        protected void preDraw(GLState pGLState, Camera pCamera) 
+	        {
+	            super.preDraw(pGLState, pCamera);
+	            pGLState.enableDither();  
+	        }        
+	    };
+	    
+	    andengineLogo.setScale(0.5f, 0.5f);
+	    final SequenceEntityModifier scaleModifier = new SequenceEntityModifier(new SequenceEntityModifier(new ScaleModifier(0.8f, 0.5f, 0.8f)));	    
+	    andengineLogo.registerEntityModifier(scaleModifier);	    
+
+	    attachChild(andengineLogo);
     }
 
     @Override
@@ -45,8 +51,8 @@ public class SplashScene extends BaseScene
     @Override
     public void disposeScene()
     {
-    	splash.detachSelf();
-        splash.dispose();
+    	andengineLogo.detachSelf();
+    	andengineLogo.dispose();
         this.detachSelf();
         this.dispose();
     }
