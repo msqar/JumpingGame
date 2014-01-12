@@ -7,6 +7,7 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
+import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.badlogic.gdx.math.Vector2;
@@ -25,6 +26,8 @@ public abstract class Player extends AnimatedSprite
 	private Body body;
 	private boolean isJumping = false;
 	private int footContacts = 0;
+	private int lastDirection = 1;
+	private static int lives;
 	
 
     // ---------------------------------------------
@@ -34,6 +37,7 @@ public abstract class Player extends AnimatedSprite
     public Player(float pX, float pY, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld)
     {
         super(pX, pY, ResourcesManager.getInstance().mario_region, vbo);
+        setLives(3);
         createPhysics(camera, physicsWorld);
         camera.setChaseEntity(this);
     }
@@ -64,6 +68,7 @@ public abstract class Player extends AnimatedSprite
     
     public void setRunningRight()
     {
+    	lastDirection = 1;
     	body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));    	
         final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
         animate(PLAYER_ANIMATE, 1, 3, true);
@@ -71,6 +76,7 @@ public abstract class Player extends AnimatedSprite
     
     public void setRunningLeft()
     {
+    	lastDirection = 0;
     	body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));    	
         final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
         animate(PLAYER_ANIMATE, 1, 3, true);
@@ -81,21 +87,25 @@ public abstract class Player extends AnimatedSprite
         if (footContacts < 1) 
         {
             return; 
-        }               
+        }        
+
+    	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };
+    	
+    	animate(PLAYER_ANIMATE, 4, 5, false);
+    	
+    	final Vector2 velocity = Vector2Pool.obtain(body.getLinearVelocity().x, 19);
+    	
+    	body.setLinearVelocity(velocity);
+    	Vector2Pool.recycle(velocity);
+//      body.applyLinearImpulse(new Vector2(0, 10), body.getPosition());
+    	ResourcesManager.getInstance().mario_jump_sound.play();         
         
-        final long[] PLAYER_ANIMATE = new long[] { 100, 100 };
-        
-        animate(PLAYER_ANIMATE, 4, 5, false);
-        
-//      body.setLinearVelocity(new Vector2(body.getLinearVelocity().x, 8)); 
-        body.applyLinearImpulse(new Vector2(0, 8), body.getPosition());
-        ResourcesManager.getInstance().mario_jump_sound.play();
     }
     
     public void dieAnimation() {
     	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };        
         animate(PLAYER_ANIMATE, 6, 7, false);
-        body.applyLinearImpulse(new Vector2(0, 17), body.getPosition());
+        body.applyLinearImpulse(new Vector2(0, 30), body.getPosition());
         
         ArrayList<Fixture> fixtureList = body.getFixtureList();
         for (int i = 0; i < fixtureList.size(); i++) {
@@ -143,6 +153,26 @@ public abstract class Player extends AnimatedSprite
 
 	public void setFootContacts(int footContacts) {
 		this.footContacts = footContacts;
-	}	
+	}
+
+	public int getLives() {
+		return lives;
+	}
+
+	public void setLives(int lives) {
+		Player.lives = lives;
+	}
+
+	public void removeALife() {
+		Player.lives -= 1;		
+	}
+
+	public int getLastDirection() {
+		return lastDirection;
+	}
+
+	public void setLastDirection(int lastDirection) {
+		this.lastDirection = lastDirection;
+	}
 
 }

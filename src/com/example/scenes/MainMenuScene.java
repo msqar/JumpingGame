@@ -39,10 +39,12 @@ public class MainMenuScene extends BaseScene implements IOnMenuItemClickListener
 		setOnSceneTouchListener(new IOnSceneTouchListener() {
 			@Override
 			public boolean onSceneTouchEvent(Scene pScene,
-					TouchEvent pSceneTouchEvent) {
-				ResourcesManager.getInstance().scream_sound.play();
-				SceneManager.getInstance().loadGameScene(engine);
-				return false;
+					TouchEvent pSceneTouchEvent) {				
+				if(pSceneTouchEvent.isActionDown()) {
+					ResourcesManager.getInstance().scream_sound.play();
+					SceneManager.getInstance().loadGameScene(engine);					
+				}
+				return true;				
 			}
 	    });
 	}

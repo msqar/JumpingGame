@@ -39,7 +39,7 @@ public class LevelCompleteWindow extends Sprite
     }
     
     /**
-     * Change star`s tile index, depends on stars count.
+     * Change star's tile index, depends on stars count.
      * @param starsCount
      */
     public void display(StarsCount starsCount, Scene scene, Camera camera)

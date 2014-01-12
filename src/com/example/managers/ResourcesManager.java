@@ -43,8 +43,7 @@ public class ResourcesManager
     public IRectangleVertexBufferObject vbo;
     
     public ITextureRegion splash_region;
-    private BuildableBitmapTextureAtlas splashTextureAtlas;
-    
+    private BuildableBitmapTextureAtlas splashTextureAtlas;    
 
         
     private BuildableBitmapTextureAtlas menuTextureAtlas;
@@ -53,6 +52,9 @@ public class ResourcesManager
     public Font font;
     public Font menu_font;
     public Font loading_font;
+    
+    // Pre-Load Textures
+    private BuildableBitmapTextureAtlas preLevelTextureAtlas;
     
     // Game Texture
     public BuildableBitmapTextureAtlas gameTextureAtlas;
@@ -106,6 +108,10 @@ public class ResourcesManager
     // Background Splash
     public ITextureRegion splash_background_andengine_region;
     
+    // World Info 
+    public ITextureRegion world_info_window_region;
+    public ITextureRegion world_info_mario_region;
+    
 	// Menu Buttons    
 //    public ITextureRegion play_region;
 //    public ITextureRegion options_region;
@@ -146,6 +152,11 @@ public class ResourcesManager
     public void loadMenuTextures()
     {
         menuTextureAtlas.load();
+    }
+    
+    public void loadPreLevelTextures()
+    {
+        preLevelTextureAtlas.load();
     }
     
     public void loadGameResources()
@@ -211,8 +222,11 @@ public class ResourcesManager
         mario_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "mario.png", 7, 2);
         
         // Game States
-        complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "states/levelCompleteWindow.png");
+        complete_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "states/level_complete_window.png");
         complete_stars_region = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(gameTextureAtlas, activity, "star.png", 2, 1);
+        
+        world_info_window_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "states/world_info_background.png");
+        world_info_mario_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "states/pre_world_mario_icon.png");
 
         // Controllers        
 //        control_knob_region = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameTextureAtlas, activity, "hud/onscreen_control_knob.png");

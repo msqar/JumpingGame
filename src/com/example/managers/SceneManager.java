@@ -149,6 +149,10 @@ public class SceneManager
             }
         }));
     }
+    
+    public GameScene getGameScene() {
+    	return new GameScene();
+    }
 
 	public Engine getEngine() {
 		return engine;

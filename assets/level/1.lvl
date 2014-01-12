@@ -54,6 +54,8 @@
 	<entity x="768" y="32" type="brick_floor"/>
 	<entity x="800" y="32" type="brick_floor"/>
 	
+	<entity x="450" y="160" type="brick_floor"/>
+	
 	<entity x="96" y="96" type="mountain_one"/>
 	<entity x="416" y="64" type="triple_bush"/>
 	

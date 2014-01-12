@@ -16,9 +16,11 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
+import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
+import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.SAXUtils;
 import org.andengine.util.adt.align.HorizontalAlign;
@@ -27,6 +29,8 @@ import org.andengine.util.level.constants.LevelConstants;
 import org.andengine.util.level.simple.SimpleLevelEntityLoaderData;
 import org.andengine.util.level.simple.SimpleLevelLoader;
 import org.xml.sax.Attributes;
+
+import android.hardware.SensorManager;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -39,6 +43,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.example.base.BaseScene;
 import com.example.extras.LevelCompleteWindow;
 import com.example.extras.LevelCompleteWindow.StarsCount;
+//import com.example.extras.WorldInfoWindow;
 import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager;
 import com.example.managers.SceneManager.SceneType;
@@ -81,8 +86,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_LEVEL_COMPLETE = "levelComplete";
     
+	// Player
 	private Player player;
-//	private BoxCoin boxCoin;
+	private String currentWorld;
+	
+	// Game NPCs and Items
 	private SimpleCoin simpleCoin;
 	
 	private int amountOfCoinsGrabbed = 0;
@@ -96,11 +104,12 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	
 	// Handle Complete Game
 	private LevelCompleteWindow levelCompleteWindow;
+//	private WorldInfoWindow worldInfoWindow;
 	
 	@Override
 	public void createScene()
 	{
-		initializeVars();
+		initializeVars();		
 	    createBackground();
 	    createHUD();
 	    createControls();
@@ -109,12 +118,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	    loadMusic();
 	    createGameOverText();
 	    setOnSceneTouchListener(this);
+//	    worldInfoWindow = new WorldInfoWindow(vbom, GameScene.this);
 	    levelCompleteWindow = new LevelCompleteWindow(vbom);
+	    
 	}
 
-	private void initializeVars() {
+	private void initializeVars() {		
 		coins = 0;
 		totalScore = 0;
+		currentWorld = "1-1";	
 	}
 
 	@Override
@@ -210,7 +222,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
             }
         };
         musicOnButton.setScale(0.5f);
-        registerTouchArea(musicOnButton);        
+        gameHUD.registerTouchArea(musicOnButton);        
         
         gameHUD.attachChild(totalCoinsText);
         gameHUD.attachChild(coinHUDSprite);
@@ -222,27 +234,25 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         gameHUD.attachChild(musicOffButton);
         camera.setHUD(gameHUD);        
     }
-    
-//    private void addToScore(int i)
-//    {
-//        score += i;
-//        scoreText.setText("Score: " + score);        
-//        ResourcesManager.getInstance().grab_coin_sound.setVolume(1.0f);
-//        ResourcesManager.getInstance().grab_coin_sound.play();
-//    }
-    
+
     private void createPhysics()
     {
-    	physicsWorld = new FixedStepPhysicsWorld(60, new Vector2(0, -17), false); 
+    	engine.registerUpdateHandler(new FPSLogger());
+    	physicsWorld = new FixedStepPhysicsWorld(60, new Vector2(0, -17), false); // 60 / -17
+    	final Vector2 gravity = Vector2Pool.obtain(0, -(SensorManager.GRAVITY_EARTH * 4));
+        physicsWorld.setGravity(gravity);
+        
     	physicsWorld.setContactListener(contactListener());
         registerUpdateHandler(physicsWorld);
+        
+        
     }
     
     private void loadLevel(int levelID)
     {
         final SimpleLevelLoader levelLoader = new SimpleLevelLoader(vbom);
         
-        final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0.01f, 0.5f);
+        final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0.01f, 0.5f); // 0, 0.01, 0.5
         
         levelLoader.registerEntityLoader(new EntityLoader<SimpleLevelEntityLoaderData>(LevelConstants.TAG_LEVEL)
         {
@@ -336,10 +346,18 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     	    		ResourcesManager.getInstance().mario_song_music.stop();
                     	    	}
                     	    	
-                    	    	player.dieAnimation();
-                    	    	
+                    	    	player.dieAnimation();                    	    	
                     	    	ResourcesManager.getInstance().mario_game_over_sound.play();
-                    	        displayGameOverText();
+//                    	    	System.out.println(player.getLives());
+//                    	    	if(player.getLives() > 0) {                    	    				
+//            	                	worldInfoWindow.display(currentWorld, player.getLives(), camera, engine);
+                	        	player.removeALife();
+                	        	
+//                            	    disposeScene();
+//                    	        SceneManager.getInstance().setScene(SceneType.SCENE_GAME);
+//                    	    	}else {
+                	        	displayGameOverText();
+//                    	    	}
                     	    }
                     	}
 
@@ -434,6 +452,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
             {
                 final Fixture x1 = contact.getFixtureA();
                 final Fixture x2 = contact.getFixtureB();
+                player.setIsJumping(false);
 
                 if (x1.getBody().getUserData() != null && x2.getBody().getUserData() != null)
                 {
@@ -470,9 +489,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     if (x2.getBody().getUserData().equals("mario"))
                     {
                         player.decreaseFootContacts();
-//                        if(player.getFootContacts() > 0) {
-//                        	player.jumpingEnd();
-//                        }
                     }
                     
                 }
@@ -499,10 +515,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		        public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 	                if (pSceneTouchEvent.isActionDown()) {
-                        if (!player.isAnimationRunning())
+                        if (!player.isAnimationRunning()) { 
                             player.setFlippedHorizontal(true);
                         	player.setRunningLeft();
-	
+                        }
+                        this.setScale(0.6f);
 	                } else if (pSceneTouchEvent.isActionUp()) {		                        
                         if (player.isJumping()){
                             player.stopAnimation(5);
@@ -510,8 +527,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                             player.stopAnimation(0);
                     		player.stopMoving();
                         }
-                }		
-                return true;
+                        this.setScale(0.5f);
+	                }		
+	                return true;
 	        };
 		};
 		
@@ -520,20 +538,21 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		        public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		
-		                if (pSceneTouchEvent.isActionDown()) {
-	                        if (!player.isAnimationRunning())
-	                        	if(player.isFlippedHorizontal()) {
-	                        		player.setFlippedHorizontal(false);
-	                        	}
-	                        	player.setRunningRight();	                        	
-		
-		                } else if (pSceneTouchEvent.isActionUp()) {		                        
-	                        if (player.isJumping()){
-                                player.stopAnimation(5);
-	                        }else{
-                                player.stopAnimation(0);
-                        		player.stopMoving();
-	                        }
+	                if (pSceneTouchEvent.isActionDown()) {
+                        if (!player.isAnimationRunning())
+                        	if(player.isFlippedHorizontal()) {
+                        		player.setFlippedHorizontal(false);
+                        	}
+                        	player.setRunningRight();
+                        	this.setScale(0.6f);	
+	                } else if (pSceneTouchEvent.isActionUp()) {		                        
+                        if (player.isJumping()){
+                            player.stopAnimation(5);
+                        }else{
+                            player.stopAnimation(0);
+                    		player.stopMoving();
+                        }
+                        this.setScale(0.5f);
 	                }		
 	                return true;
 		        };
@@ -546,11 +565,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		        	
 		        	if (pSceneTouchEvent.isActionDown()) {
-//			        	if (player.getFootContacts() > 0)
-//		        		player.getPlayerBody().applyLinearImpulse(new Vector2(0, 8), player.getPlayerBody().getPosition());
+		        		this.setScale(0.7f);
 	                    player.jump();
 			        } else if (pSceneTouchEvent.isActionUp()) {
-			        				        		
+			        	this.setScale(0.6f);
 			        }
 			        return true;
 		        };
@@ -558,7 +576,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		
 		leftArrowButton.setScale(0.5f);
 		rightArrowButton.setScale(0.5f);
-		aButton.setScale(0.5f);
+		aButton.setScale(0.6f);
+		
+		aButton.setAlpha(0.5f);
+		leftArrowButton.setAlpha(0.5f);
+		rightArrowButton.setAlpha(0.5f);
 		
 		gameHUD.attachChild(aButton);
 		gameHUD.attachChild(leftArrowButton);
@@ -600,6 +622,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		ResourcesManager.getInstance().mario_song_music.play();	
 		ResourcesManager.getInstance().mario_song_music.setVolume(0.5f);
 		ResourcesManager.getInstance().mario_song_music.setLooping(true);	
+	}
+
+	public String getCurrentWorld() {
+		return currentWorld;
+	}
+
+	public void setCurrentWorld(String currentWorld) {
+		this.currentWorld = currentWorld;
 	}
 	
 }
