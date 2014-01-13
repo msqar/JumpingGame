@@ -6,7 +6,9 @@ import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.ui.IGameInterface.OnCreateSceneCallback;
 
 import com.example.base.BaseScene;
+import com.example.scenes.GameOverScene;
 import com.example.scenes.GameScene;
+import com.example.scenes.InfoScene;
 import com.example.scenes.LoadingScene;
 import com.example.scenes.MainMenuScene;
 import com.example.scenes.SplashScene;
@@ -21,6 +23,8 @@ public class SceneManager
     private BaseScene menuScene;
     private BaseScene gameScene;
     private BaseScene loadingScene;
+    private BaseScene infoScene;
+    private BaseScene gameOverScene;
     
     //---------------------------------------------
     // VARIABLES
@@ -40,6 +44,8 @@ public class SceneManager
         SCENE_MENU,
         SCENE_GAME,
         SCENE_LOADING,
+        SCENE_INFO,
+        SCENE_GAMEOVER,
     }
     
     //---------------------------------------------
@@ -69,6 +75,10 @@ public class SceneManager
             case SCENE_LOADING:
                 setScene(loadingScene);
                 break;
+            case SCENE_INFO:
+            	setScene(infoScene);
+            case SCENE_GAMEOVER:
+            	setScene(gameOverScene);
             default:
                 break;
         }
@@ -95,17 +105,49 @@ public class SceneManager
     
     public void loadGameScene(final Engine mEngine)
     {
+    	ResourcesManager.getInstance().loadGameResources();
+    	getGameScene().getGameHUD().setVisible(false);
         setScene(loadingScene);
         ResourcesManager.getInstance().unloadMenuTextures();
         mEngine.registerUpdateHandler(new TimerHandler(0.1f, new ITimerCallback() 
-        {
+        {        	
             public void onTimePassed(final TimerHandler pTimerHandler) 
             {
-                mEngine.unregisterUpdateHandler(pTimerHandler);
-				ResourcesManager.getInstance().loadGameResources();
+                mEngine.unregisterUpdateHandler(pTimerHandler); 
+				if(ResourcesManager.getInstance().lives > 0) {
+					
+					infoScene = new InfoScene();
+					setScene(infoScene);
+					
+					mEngine.registerUpdateHandler(new TimerHandler(3.5f, new ITimerCallback() {
 
-                gameScene = new GameScene();
-                setScene(gameScene);
+						@Override
+						public void onTimePassed(TimerHandler pTimerHandler) {
+							
+							mEngine.unregisterUpdateHandler(pTimerHandler);
+							loadMusic();
+							gameScene = new GameScene();
+			                setScene(gameScene);							
+						}
+						
+					}));
+				}else{
+					gameOverScene = new GameOverScene();
+					setScene(gameOverScene);
+					ResourcesManager.getInstance().resetGameVariables();
+					mEngine.registerUpdateHandler(new TimerHandler(3.0f, new ITimerCallback() {
+
+						@Override
+						public void onTimePassed(TimerHandler pTimerHandler) {
+							
+							mEngine.unregisterUpdateHandler(pTimerHandler);
+							disposeGameOverScene();
+							loadMenuScene(engine);							
+						}
+						
+					}));
+				}
+                
             }
         }));
     }
@@ -134,6 +176,11 @@ public class SceneManager
         splashScene = null;
     }
     
+    private void disposeGameOverScene() {
+    	gameOverScene.dispose();
+    	gameOverScene = null;
+    }
+    
     public void loadMenuScene(final Engine mEngine)
     {
         setScene(loadingScene);
@@ -160,6 +207,12 @@ public class SceneManager
 
 	public void setEngine(Engine engine) {
 		this.engine = engine;
-	}   
+	} 
+	
+	private void loadMusic() {
+		ResourcesManager.getInstance().mario_song_music.play();	
+		ResourcesManager.getInstance().mario_song_music.setVolume(0.5f);
+		ResourcesManager.getInstance().mario_song_music.setLooping(true);	
+	}
     
 }

@@ -26,8 +26,16 @@ public abstract class Player extends AnimatedSprite
 	private Body body;
 	private boolean isJumping = false;
 	private int footContacts = 0;
-	private int lastDirection = 1;
-	private static int lives;
+	private boolean isMoving = false;
+	public enum PlayerDirection { 
+		LEFT, 
+		RIGHT, 
+		UP, 
+		DOWN, 
+		NONE; 
+	}
+	
+	public PlayerDirection lastDirection = PlayerDirection.UP;
 	
 
     // ---------------------------------------------
@@ -37,7 +45,6 @@ public abstract class Player extends AnimatedSprite
     public Player(float pX, float pY, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld)
     {
         super(pX, pY, ResourcesManager.getInstance().mario_region, vbo);
-        setLives(3);
         createPhysics(camera, physicsWorld);
         camera.setChaseEntity(this);
     }
@@ -68,18 +75,20 @@ public abstract class Player extends AnimatedSprite
     
     public void setRunningRight()
     {
-    	lastDirection = 1;
+    	lastDirection = PlayerDirection.RIGHT;
     	body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));    	
         final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
         animate(PLAYER_ANIMATE, 1, 3, true);
+        setFlippedHorizontal(false);
     }
     
     public void setRunningLeft()
     {
-    	lastDirection = 0;
+    	lastDirection = PlayerDirection.LEFT;
     	body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));    	
         final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
         animate(PLAYER_ANIMATE, 1, 3, true);
+        setFlippedHorizontal(true);
     }
     
     public void jump()
@@ -98,11 +107,39 @@ public abstract class Player extends AnimatedSprite
     	body.setLinearVelocity(velocity);
     	Vector2Pool.recycle(velocity);
 //      body.applyLinearImpulse(new Vector2(0, 10), body.getPosition());
-    	ResourcesManager.getInstance().mario_jump_sound.play();         
+    	ResourcesManager.getInstance().mario_jump_sound.play();    
+//    	setCurrentTileIndex(0);
         
     }
     
-    public void dieAnimation() {
+    public void jumpingStart() {
+        this.isJumping = true;
+    }
+
+	public void jumpingEnd() {
+        this.isJumping = false;
+        if (isMoving()) {
+        	System.out.println("Im moving while jumping!");
+//            if (lastDirection == PlayerDirection.LEFT) {
+//                setRunningLeft();
+//            } else if (lastDirection == PlayerDirection.RIGHT) {
+//                setRunningRight();
+//            }
+        } else {
+        	System.out.println("Im jumping on my place!");
+            if (lastDirection == PlayerDirection.LEFT) {
+            	stopAnimation(0);            	
+            } else if (lastDirection == PlayerDirection.RIGHT) {
+            	stopAnimation(0);
+            }
+        }
+	}
+    
+    public boolean isMoving() {
+		return isMoving;
+	}
+
+	public void dieAnimation() {
     	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };        
         animate(PLAYER_ANIMATE, 6, 7, false);
         body.applyLinearImpulse(new Vector2(0, 30), body.getPosition());
@@ -153,26 +190,18 @@ public abstract class Player extends AnimatedSprite
 
 	public void setFootContacts(int footContacts) {
 		this.footContacts = footContacts;
-	}
+	}	
 
-	public int getLives() {
-		return lives;
-	}
-
-	public void setLives(int lives) {
-		Player.lives = lives;
-	}
-
-	public void removeALife() {
-		Player.lives -= 1;		
-	}
-
-	public int getLastDirection() {
+	public PlayerDirection getLastDirection() {
 		return lastDirection;
 	}
 
-	public void setLastDirection(int lastDirection) {
+	public void setLastDirection(PlayerDirection lastDirection) {
 		this.lastDirection = lastDirection;
 	}
 
+	public void setMoving(boolean isMoving) {
+		this.isMoving = isMoving;
+	}	
+	
 }

@@ -12,9 +12,8 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.modifier.ease.EaseExponentialOut;
 
+import com.example.activity.GameActivity;
 import com.example.managers.ResourcesManager;
-import com.example.scenes.GameScene;
-import com.example.testingand.GameActivity;
 
 public class SimpleCoin extends AnimatedSprite {	
 	
@@ -36,8 +35,8 @@ public class SimpleCoin extends AnimatedSprite {
 
 	public void addToScore(Text scoreCoinsText, Text totalScoreText)
     {    	
-    	GameScene.coins += 1;
-        GameScene.totalScore += 200;
+		ResourcesManager.getInstance().coins++;
+		ResourcesManager.getInstance().totalScore += 200;
         
         resolveCoinText(scoreCoinsText);
         resolveTotalScoreText(totalScoreText);
@@ -48,26 +47,26 @@ public class SimpleCoin extends AnimatedSprite {
     
     private void resolveTotalScoreText(Text totalScoreText) {
 		String zeros = "0000";
-    	if(GameScene.totalScore > 9) {
+    	if(ResourcesManager.getInstance().totalScore > 9) {
 			zeros = "000";
-		}else if(GameScene.totalScore > 99) {
+		}else if(ResourcesManager.getInstance().totalScore > 99) {
 			zeros = "00";
-		}else if(GameScene.totalScore > 999) {
+		}else if(ResourcesManager.getInstance().totalScore > 999) {
 			zeros = "0";
-		}else if(GameScene.totalScore > 9999) {
+		}else if(ResourcesManager.getInstance().totalScore > 9999) {
 			zeros = "";		
 		}
     	
-    	totalScoreText.setText(zeros + GameScene.totalScore);
+    	totalScoreText.setText(zeros + ResourcesManager.getInstance().totalScore);
 	}
 
 	private void resolveCoinText(Text scoreCoinsText) {
 		String zeros = "0";
-    	if(GameScene.coins > 9) {
+    	if(ResourcesManager.getInstance().coins > 9) {
 			zeros = "";
 		}
-    	scoreCoinsText.setText("x" + zeros + GameScene.coins);
-	}
+    	scoreCoinsText.setText("x" + zeros + ResourcesManager.getInstance().coins);
+	}	
 
 	public void pickedFromGroundShowPointsAnimation(float x, float y) {
 		createJumpModifier(x, y);	

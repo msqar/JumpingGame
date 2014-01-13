@@ -18,11 +18,11 @@ import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.util.GLState;
 
+import com.example.activity.GameActivity;
 import com.example.base.BaseScene;
 import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager;
 import com.example.managers.SceneManager.SceneType;
-import com.example.testingand.GameActivity;
 
 public class MainMenuScene extends BaseScene implements IOnMenuItemClickListener{
 	

@@ -40,16 +40,16 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.example.activity.GameActivity;
 import com.example.base.BaseScene;
 import com.example.extras.LevelCompleteWindow;
 import com.example.extras.LevelCompleteWindow.StarsCount;
-//import com.example.extras.WorldInfoWindow;
 import com.example.managers.ResourcesManager;
 import com.example.managers.SceneManager;
 import com.example.managers.SceneManager.SceneType;
 import com.example.object.SimpleCoin;
 import com.example.object.Player;
-import com.example.testingand.GameActivity;
+import com.example.utils.GameUtils;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener
 {
@@ -60,9 +60,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private Text marioTitleText;
 	private Text mapLevelText;
 	private Text timeTitleText;
+	private Text currentMapLevelText;
 	
-	public static int coins = 0;
-	public static int totalScore = 0;
 	private PhysicsWorld physicsWorld;
 	public boolean soundOn = true;
 	
@@ -88,7 +87,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     
 	// Player
 	private Player player;
-	private String currentWorld;
 	
 	// Game NPCs and Items
 	private SimpleCoin simpleCoin;
@@ -98,35 +96,20 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	
 //	private boolean firstTouch = false;
 	
-	// Handle GAME OVER
-	private Text gameOverText;
-	private boolean gameOverDisplayed = false;
-	
 	// Handle Complete Game
 	private LevelCompleteWindow levelCompleteWindow;
-//	private WorldInfoWindow worldInfoWindow;
 	
 	@Override
 	public void createScene()
-	{
-		initializeVars();		
+	{	
 	    createBackground();
 	    createHUD();
 	    createControls();
 	    createPhysics();
 	    loadLevel(1);
-	    loadMusic();
-	    createGameOverText();
 	    setOnSceneTouchListener(this);
-//	    worldInfoWindow = new WorldInfoWindow(vbom, GameScene.this);
 	    levelCompleteWindow = new LevelCompleteWindow(vbom);
 	    
-	}
-
-	private void initializeVars() {		
-		coins = 0;
-		totalScore = 0;
-		currentWorld = "1-1";	
 	}
 
 	@Override
@@ -181,8 +164,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         marioTitleText.setText("MARIO");
         
         totalScoreText = new Text(20, 400, resourcesManager.font, "0123456789", new TextOptions(HorizontalAlign.LEFT), vbom);
-        totalScoreText.setAnchorCenter(0, 0);
-        totalScoreText.setText("000000");
+        totalScoreText.setAnchorCenter(0, 0);        
+        totalScoreText.setText(GameUtils.getResolvedCurrentScore());
         
         final AnimatedSprite coinHUDSprite = new AnimatedSprite(240, 410, resourcesManager.menu_hud_coin_region, vbom);
         coinHUDSprite.setScale(1.2f);
@@ -191,11 +174,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         
         totalCoinsText = new Text(250, 400, resourcesManager.font, "0123456789", new TextOptions(HorizontalAlign.LEFT), vbom);
         totalCoinsText.setAnchorCenter(0, 0);
-        totalCoinsText.setText("x0" + coins);
+        totalCoinsText.setText(GameUtils.getResolvedCurrentCoins());
         
         mapLevelText = new Text(380, 430, resourcesManager.font, "WORLD", new TextOptions(HorizontalAlign.LEFT), vbom);
         mapLevelText.setAnchorCenter(0, 0);
         mapLevelText.setText("WORLD");
+        
+        currentMapLevelText = new Text(380, 400, resourcesManager.font, "WORLD", new TextOptions(HorizontalAlign.LEFT), vbom);
+        currentMapLevelText.setAnchorCenter(0, 0);
+        currentMapLevelText.setText(GameUtils.getResolvedCurrentWorld());
         
         timeTitleText = new Text(550, 430, resourcesManager.font, "TIME", new TextOptions(HorizontalAlign.LEFT), vbom);
         timeTitleText.setAnchorCenter(0, 0);
@@ -230,6 +217,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         gameHUD.attachChild(totalScoreText);
         gameHUD.attachChild(mapLevelText);
         gameHUD.attachChild(timeTitleText);
+        gameHUD.attachChild(currentMapLevelText);
         gameHUD.attachChild(musicOnButton);
         gameHUD.attachChild(musicOffButton);
         camera.setHUD(gameHUD);        
@@ -339,26 +327,15 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     	@Override
                     	public void onDie()
                     	{
-                    	    if (!gameOverDisplayed)
-                    	    {
-                    	    	// Stopping mario song
-                    	    	if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
-                    	    		ResourcesManager.getInstance().mario_song_music.stop();
-                    	    	}
-                    	    	
-                    	    	player.dieAnimation();                    	    	
-                    	    	ResourcesManager.getInstance().mario_game_over_sound.play();
-//                    	    	System.out.println(player.getLives());
-//                    	    	if(player.getLives() > 0) {                    	    				
-//            	                	worldInfoWindow.display(currentWorld, player.getLives(), camera, engine);
-                	        	player.removeALife();
-                	        	
-//                            	    disposeScene();
-//                    	        SceneManager.getInstance().setScene(SceneType.SCENE_GAME);
-//                    	    	}else {
-                	        	displayGameOverText();
-//                    	    	}
-                    	    }
+                			ResourcesManager.getInstance().lives--;
+                			if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+                	    		ResourcesManager.getInstance().mario_song_music.stop();
+                	    	}
+                	    	
+                	    	player.dieAnimation();                    	    	
+                	    	ResourcesManager.getInstance().mario_game_over_sound.play();
+                	    	
+                	    	SceneManager.getInstance().loadGameScene(engine);
                     	}
 
                     };
@@ -431,19 +408,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         return false;
     }
     
-    private void createGameOverText()
-    {
-        gameOverText = new Text(0, 0, resourcesManager.font, "Game Over!", vbom);
-    }
-
-    private void displayGameOverText()
-    {
-        camera.setChaseEntity(null);
-        gameOverText.setPosition(camera.getCenterX(), camera.getCenterY());
-        attachChild(gameOverText);
-        gameOverDisplayed = true;
-    }
-    
     private ContactListener contactListener()
     {
         ContactListener contactListener = new ContactListener()
@@ -477,6 +441,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                         }
                     }));
                 }
+                if(player.getFootContacts() > 0) {
+                	player.jumpingEnd();
+                }
             }
 
             public void endContact(Contact contact)
@@ -491,6 +458,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                         player.decreaseFootContacts();
                     }
                     
+                }
+                
+                if(player.getFootContacts() < 1) {
+                	player.jumpingStart();
                 }
             }
 
@@ -515,12 +486,16 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		        public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 	                if (pSceneTouchEvent.isActionDown()) {
+	                	player.setMoving(true);
+	                	System.out.println("Aprieto " + player.isMoving());
                         if (!player.isAnimationRunning()) { 
-                            player.setFlippedHorizontal(true);
+//                            player.setFlippedHorizontal(true);
                         	player.setRunningLeft();
                         }
                         this.setScale(0.6f);
-	                } else if (pSceneTouchEvent.isActionUp()) {		                        
+	                } else if (pSceneTouchEvent.isActionUp()) {	                	
+	                	player.setMoving(false);
+	                	System.out.println("Solteee " + player.isMoving());
                         if (player.isJumping()){
                             player.stopAnimation(5);
                         }else{
@@ -539,18 +514,23 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		
 	                if (pSceneTouchEvent.isActionDown()) {
-                        if (!player.isAnimationRunning())
-                        	if(player.isFlippedHorizontal()) {
-                        		player.setFlippedHorizontal(false);
+	                	player.setMoving(true);
+	                	System.out.println("Aprieto " + player.isMoving());
+                        if (!player.isAnimationRunning()) {
+//                        	if(player.isFlippedHorizontal()) {
+//                        		player.setFlippedHorizontal(false);
+                        		player.setRunningRight();
                         	}
-                        	player.setRunningRight();
                         	this.setScale(0.6f);	
-	                } else if (pSceneTouchEvent.isActionUp()) {		                        
-                        if (player.isJumping()){
+	                } else if (pSceneTouchEvent.isActionUp()) {		                	
+	                	player.setMoving(false);  
+	                	System.out.println("Solteee " + player.isMoving());
+	                	if (player.isJumping()){
                             player.stopAnimation(5);
                         }else{
                             player.stopAnimation(0);
-                    		player.stopMoving();
+//                    		player.stopMoving();
+                            player.getPlayerBody().setLinearVelocity(0,0);
                         }
                         this.setScale(0.5f);
 	                }		
@@ -618,19 +598,14 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 //    	setChildScene(control);
     }   
     
-	private void loadMusic() {
-		ResourcesManager.getInstance().mario_song_music.play();	
-		ResourcesManager.getInstance().mario_song_music.setVolume(0.5f);
-		ResourcesManager.getInstance().mario_song_music.setLooping(true);	
-	}
-
-	public String getCurrentWorld() {
-		return currentWorld;
-	}
-
-	public void setCurrentWorld(String currentWorld) {
-		this.currentWorld = currentWorld;
-	}
 	
+
+	public HUD getGameHUD() {
+		return gameHUD;
+	}
+
+	public void setGameHUD(HUD gameHUD) {
+		this.gameHUD = gameHUD;
+	}
 }
 

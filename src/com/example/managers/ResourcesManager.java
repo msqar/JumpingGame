@@ -25,7 +25,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
 
-import com.example.testingand.GameActivity;
+import com.example.activity.GameActivity;
 
 
 public class ResourcesManager
@@ -73,6 +73,10 @@ public class ResourcesManager
     
     // Player
     public ITiledTextureRegion mario_region;
+    public int lives = 3;
+    public String currentWorld = "1-1";
+	public int coins = 0;
+	public int totalScore = 0;
     
     // Level Complete Window
     public ITextureRegion complete_window_region;
@@ -165,8 +169,8 @@ public class ResourcesManager
         loadGameFonts();
         loadGameAudio();
     }
-    
-    private void loadMenuGraphics()
+
+	private void loadMenuGraphics()
     {
     	BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/menu/");
     	menuTextureAtlas = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048, TextureOptions.BILINEAR);
@@ -378,4 +382,11 @@ public class ResourcesManager
     {
         return INSTANCE;
     }
+
+	public void resetGameVariables() {
+		lives = 3;
+		currentWorld = "1-1";
+		coins = 0;
+		totalScore = 0;
+	}
 }

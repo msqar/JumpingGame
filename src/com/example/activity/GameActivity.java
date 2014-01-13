@@ -1,4 +1,4 @@
-package com.example.testingand;
+package com.example.activity;
 
 
 import java.io.IOException;
