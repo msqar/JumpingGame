@@ -108,7 +108,6 @@ public abstract class Player extends AnimatedSprite
     	Vector2Pool.recycle(velocity);
 //      body.applyLinearImpulse(new Vector2(0, 10), body.getPosition());
     	ResourcesManager.getInstance().mario_jump_sound.play();    
-//    	setCurrentTileIndex(0);
         
     }
     
@@ -119,18 +118,28 @@ public abstract class Player extends AnimatedSprite
 	public void jumpingEnd() {
         this.isJumping = false;
         if (isMoving()) {
-        	System.out.println("Im moving while jumping!");
-//            if (lastDirection == PlayerDirection.LEFT) {
-//                setRunningLeft();
-//            } else if (lastDirection == PlayerDirection.RIGHT) {
-//                setRunningRight();
-//            }
-        } else {
-        	System.out.println("Im jumping on my place!");
             if (lastDirection == PlayerDirection.LEFT) {
-            	stopAnimation(0);            	
+            	if (!isAnimationRunning())
+            		animate(new long[] { 100, 100, 100 }, 1, 3, true);
+
+            	body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));
+            	setFlippedHorizontal(true);
+                
+            } else if (lastDirection == PlayerDirection.RIGHT) {
+            	if (!isAnimationRunning())
+                    animate(new long[] { 100, 100, 100 }, 1, 3, true);
+
+            	body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));
+            	setFlippedHorizontal(false);
+            }
+        } else {
+            if (lastDirection == PlayerDirection.LEFT) {
+            	stopAnimation(0); 
+            	setFlippedHorizontal(true);
+            	body.setLinearVelocity(0, 0);
             } else if (lastDirection == PlayerDirection.RIGHT) {
             	stopAnimation(0);
+            	body.setLinearVelocity(0, 0);
             }
         }
 	}
