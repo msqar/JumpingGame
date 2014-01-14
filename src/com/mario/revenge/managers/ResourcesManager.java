@@ -1,6 +1,9 @@
 package com.mario.revenge.managers;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
@@ -25,9 +28,13 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.debug.Debug;
 
+import android.annotation.SuppressLint;
 import com.mario.revenge.activity.GameActivity;
+import com.mario.revenge.object.WorldInfo;
+import com.mario.revenge.utils.GameUtils;
 
 
+@SuppressLint("UseSparseArrays")
 public class ResourcesManager
 {
     //---------------------------------------------
@@ -43,9 +50,8 @@ public class ResourcesManager
     public IRectangleVertexBufferObject vbo;
     
     public ITextureRegion splash_region;
-    private BuildableBitmapTextureAtlas splashTextureAtlas;    
-
-        
+    private BuildableBitmapTextureAtlas splashTextureAtlas;
+    
     private BuildableBitmapTextureAtlas menuTextureAtlas;
     
     // Responsible for Loading font
@@ -74,7 +80,9 @@ public class ResourcesManager
     // Player
     public ITiledTextureRegion mario_region;
     public int lives = 3;
-    public String currentWorld = "1-1";
+    public String currentWorldName = "1-1";
+    public int currentWorldID = 1;
+    public int levelTime = 400;
 	public int coins = 0;
 	public int totalScore = 0;
     
@@ -115,12 +123,7 @@ public class ResourcesManager
     // World Info 
     public ITextureRegion world_info_window_region;
     public ITextureRegion world_info_mario_region;
-    
-	// Menu Buttons    
-//    public ITextureRegion play_region;
-//    public ITextureRegion options_region;
-    
-    
+   
     //---------------------------------------------
     // SOUND & MUSIC
     //---------------------------------------------
@@ -135,6 +138,15 @@ public class ResourcesManager
     // Menu
     public Sound its_me_mario_sound;
     public Sound scream_sound;
+
+    // Initializing all world related info
+	public static final Map<Integer, WorldInfo> worldLevels;
+	
+    static {
+    	Map<Integer, WorldInfo> worlds = new HashMap<Integer, WorldInfo>();
+    	worlds.put(1, new WorldInfo("1-1", 400)); // map name - time given to finish it
+    	worldLevels = Collections.unmodifiableMap(worlds);
+    }
     
     //---------------------------------------------
     // CLASS LOGIC
@@ -385,8 +397,10 @@ public class ResourcesManager
 
 	public void resetGameVariables() {
 		lives = 3;
-		currentWorld = "1-1";
+		currentWorldName = "1-1";
+		currentWorldID = 1;
 		coins = 0;
 		totalScore = 0;
+		levelTime = 400;
 	}
 }

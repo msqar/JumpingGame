@@ -1,6 +1,7 @@
 package com.mario.revenge.utils;
 
 import com.mario.revenge.managers.ResourcesManager;
+import com.mario.revenge.object.WorldInfo;
 
 public class GameUtils {
 	
@@ -17,11 +18,11 @@ public class GameUtils {
 	}
 	
 	public static String getResolvedCurrentWorld() {
-		String[] splitted = ResourcesManager.getInstance().currentWorld.trim().split("-");
+		String[] splitted = ResourcesManager.getInstance().currentWorldName.trim().split("-");
 		if(splitted != null && splitted.length != 0) {
 			return splitted[0] + " - " + splitted[1];
 		}
-    	return ResourcesManager.getInstance().currentWorld;
+    	return ResourcesManager.getInstance().currentWorldName;
 	}
 	
 	public static String getResolvedCurrentScore() {
@@ -39,6 +40,12 @@ public class GameUtils {
 		}
 		
 		return zeros + ResourcesManager.getInstance().totalScore;
+	}
+
+	public static int resolveTimeBasedOnCurrentLevel() {
+		int currentWorldID = ResourcesManager.getInstance().currentWorldID;
+		WorldInfo info = ResourcesManager.worldLevels.get(currentWorldID);
+		return info.getAmountOfTime();
 	}
 
 

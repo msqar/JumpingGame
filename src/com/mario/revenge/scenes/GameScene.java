@@ -31,6 +31,7 @@ import org.andengine.util.level.simple.SimpleLevelLoader;
 import org.xml.sax.Attributes;
 
 import android.hardware.SensorManager;
+import android.os.CountDownTimer;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -40,6 +41,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
+
 import com.mario.revenge.activity.GameActivity;
 import com.mario.revenge.base.BaseScene;
 import com.mario.revenge.extras.LevelCompleteWindow;
@@ -60,7 +62,8 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private Text marioTitleText;
 	private Text mapLevelText;
 	private Text timeTitleText;
-	private Text currentMapLevelText;
+	private Text timeTitleValue;
+	private Text currentMapLevelText;	
 	
 	private PhysicsWorld physicsWorld;
 	public boolean soundOn = true;
@@ -106,11 +109,30 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	    createHUD();
 	    createControls();
 	    createPhysics();
-	    loadLevel(1);
+	    int levelID = ResourcesManager.getInstance().currentWorldID;
+	    loadLevel(levelID);
 	    setOnSceneTouchListener(this);
 	    levelCompleteWindow = new LevelCompleteWindow(vbom);
 	    
 	}
+
+//	private void startTimer() {
+//		TimerHandler timerHandler = new TimerHandler(1.0f, new ITimerCallback() {
+//		        public void onTimePassed(TimerHandler pTimerHandler) {
+//		        		ResourcesManager.getInstance().levelTime--;
+//		        		timeTitleValue.setText(String.valueOf(ResourcesManager.getInstance().levelTime));
+////		                if (timeRemaining == 0) {
+////		                        showGameOver(currentScore, currentLevel);
+////		                }
+////		                if (timeRemaining <= 10) {
+////		                        timerTickSound.play();
+////		                }
+////		                if (timeRemaining > 0)
+////		                        timerHandler.reset();
+//		        }
+//		});	
+//		
+//	}
 
 	@Override
 	public void onBackKeyPressed()
@@ -188,6 +210,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         timeTitleText.setAnchorCenter(0, 0);
         timeTitleText.setText("TIME");
         
+        timeTitleValue = new Text(570, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
+        timeTitleValue.setAnchorCenter(0, 0);
+        timeTitleValue.setText(String.valueOf(ResourcesManager.getInstance().levelTime));
+        
         final Sprite musicOffButton = new Sprite(750, 430, resourcesManager.gamehud_music_off_region, vbom);
         musicOffButton.setScale(0.5f);
         musicOffButton.setVisible(false);
@@ -217,6 +243,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         gameHUD.attachChild(totalScoreText);
         gameHUD.attachChild(mapLevelText);
         gameHUD.attachChild(timeTitleText);
+        gameHUD.attachChild(timeTitleValue);
         gameHUD.attachChild(currentMapLevelText);
         gameHUD.attachChild(musicOnButton);
         gameHUD.attachChild(musicOffButton);
