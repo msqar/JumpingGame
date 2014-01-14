@@ -28,15 +28,14 @@ public class GameUtils {
 		String zeros = "0000";
 		if(ResourcesManager.getInstance().totalScore == 0) {
 			zeros = "00000";
-		}
-    	if(ResourcesManager.getInstance().totalScore > 9) {
-			zeros = "000";
-		}else if(ResourcesManager.getInstance().totalScore > 99) {
-			zeros = "00";
-		}else if(ResourcesManager.getInstance().totalScore > 999) {
-			zeros = "0";
+		}else if(ResourcesManager.getInstance().totalScore > 99999) {	
+			zeros = "";
 		}else if(ResourcesManager.getInstance().totalScore > 9999) {
-			zeros = "";		
+			zeros = "0";
+		}else if(ResourcesManager.getInstance().totalScore > 999) {
+			zeros = "00";
+		}else if(ResourcesManager.getInstance().totalScore > 99) {	
+			zeros = "000";
 		}
 		
 		return zeros + ResourcesManager.getInstance().totalScore;

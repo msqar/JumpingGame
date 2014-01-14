@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<level width="1000" height="780">    
+<level width="1000" height="480">    
 	<entity x="0" y="0" type="brick_floor"/>
 	<entity x="32" y="0" type="brick_floor"/>
 	<entity x="64" y="0" type="brick_floor"/>
