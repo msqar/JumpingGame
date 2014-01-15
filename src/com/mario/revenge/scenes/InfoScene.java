@@ -22,6 +22,7 @@ public class InfoScene extends BaseScene {
 	private Text currentMapLevelText;
 	
 	private Text timeTitleText;
+	private Text timeTitleValue;
 	
 	private Text worldText;
 	private Text livesText;
@@ -56,13 +57,17 @@ public class InfoScene extends BaseScene {
         mapLevelText.setAnchorCenter(0, 0);
         mapLevelText.setText("WORLD");
         
-        currentMapLevelText = new Text(380, 400, resourcesManager.font, "WORLD", new TextOptions(HorizontalAlign.LEFT), vbom);
+        currentMapLevelText = new Text(380, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
         currentMapLevelText.setAnchorCenter(0, 0);
         currentMapLevelText.setText(GameUtils.getResolvedCurrentWorld());
         
         timeTitleText = new Text(550, 430, resourcesManager.font, "TIME", new TextOptions(HorizontalAlign.LEFT), vbom);
         timeTitleText.setAnchorCenter(0, 0);
         timeTitleText.setText("TIME");
+        
+        timeTitleValue = new Text(570, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
+        timeTitleValue.setAnchorCenter(0, 0);
+        timeTitleValue.setText(String.valueOf(ResourcesManager.getInstance().levelTime));
 		
 		
 		worldText = new Text(400, 300, ResourcesManager.getInstance().font, "WORLD", ResourcesManager.getInstance().vbom);
@@ -82,6 +87,7 @@ public class InfoScene extends BaseScene {
         attachChild(totalScoreText);
         attachChild(totalCoinsText);
         attachChild(timeTitleText);
+        attachChild(timeTitleValue);
         attachChild(mapLevelText);
         attachChild(currentMapLevelText);
         attachChild(coinHUDSprite);

@@ -3,6 +3,7 @@ package com.mario.revenge.scenes;
 import java.io.IOException;
 
 import org.andengine.engine.camera.hud.HUD;
+import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
@@ -31,7 +32,6 @@ import org.andengine.util.level.simple.SimpleLevelLoader;
 import org.xml.sax.Attributes;
 
 import android.hardware.SensorManager;
-import android.os.CountDownTimer;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -52,6 +52,7 @@ import com.mario.revenge.managers.SceneManager.SceneType;
 import com.mario.revenge.object.Player;
 import com.mario.revenge.object.SimpleCoin;
 import com.mario.revenge.utils.GameUtils;
+import com.mario.revenge.utils.Timer;
 
 public class GameScene extends BaseScene implements IOnSceneTouchListener
 {
@@ -104,34 +105,82 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	
 	@Override
 	public void createScene()
-	{	
+	{		    
 	    createBackground();
-	    createHUD();
+	    createHUD();	    
 	    createControls();
 	    createPhysics();
 	    int levelID = ResourcesManager.getInstance().currentWorldID;
 	    loadLevel(levelID);
 	    setOnSceneTouchListener(this);
 	    levelCompleteWindow = new LevelCompleteWindow(vbom);
-	    
+	    createTimeHandler();
+	}
+	
+	
+	private void createTimeHandler() {
+		Timer timer = new Timer(1.5f, new Timer.ITimerCallback() {
+		    public void onTick() {
+		    	String timeNow = String.valueOf(ResourcesManager.getInstance().levelTime -= 1);
+            	timeTitleValue.setText(timeNow);
+		    }
+		});
+		engine.registerUpdateHandler(timer);
 	}
 
-//	private void startTimer() {
-//		TimerHandler timerHandler = new TimerHandler(1.0f, new ITimerCallback() {
-//		        public void onTimePassed(TimerHandler pTimerHandler) {
-//		        		ResourcesManager.getInstance().levelTime--;
-//		        		timeTitleValue.setText(String.valueOf(ResourcesManager.getInstance().levelTime));
-////		                if (timeRemaining == 0) {
-////		                        showGameOver(currentScore, currentLevel);
-////		                }
-////		                if (timeRemaining <= 10) {
-////		                        timerTickSound.play();
-////		                }
-////		                if (timeRemaining > 0)
-////		                        timerHandler.reset();
-//		        }
-//		});	
-//		
+//	private void createTimeHandler() {              
+//        engine.registerUpdateHandler(new IUpdateHandler() {
+//
+//                       @Override
+//                       public void onUpdate(float pSecondsElapsed) {
+//                    	   
+//                    	   acumTime += pSecondsElapsed; 
+//                    	   System.out.println(acumTime);
+//                    	   if(acumTime == 1.0f) {
+//                    		   ResourcesManager.getInstance().levelTime -= 1;
+//                               timeTitleValue.setText("" + ResourcesManager.getInstance().levelTime);
+//                               if (ResourcesManager.getInstance().levelTime <= 0) {
+////                            	   player.onDie();
+//                               }
+//                    	   }
+//                               
+//                       }
+//                       
+//                       @Override
+//                       public void reset() {
+//                    	   acumTime = 0.0f;
+//                       }
+//
+//               });
+//   }
+	
+//	private void createTimeHandler() {              
+//	     engine.registerUpdateHandler(new TimerHandler(1, new ITimerCallback(){                      
+//                @Override
+//                public void onTimePassed(final TimerHandler pTimerHandler) {
+//                	pTimerHandler.setAutoReset(true);
+//                	System.out.println("Seconds Elapsed: " + pTimerHandler.getTimerSecondsElapsed());
+//                	System.out.println("Seconds: " + pTimerHandler.getTimerSeconds());
+////                	if(pTimerHandler.getTimerSeconds() == 1.0f) { 
+//                		System.out.println(ResourcesManager.getInstance().levelTime);
+//                    	ResourcesManager.getInstance().levelTime -= pTimerHandler.getTimerSeconds();
+//                    	timeTitleValue.setText("" + ResourcesManager.getInstance().levelTime);
+////                    	
+////                	}
+////                	pTimerHandler.reset();
+//                    if (ResourcesManager.getInstance().levelTime == 0) {
+//                            //End screen
+//                    }
+//                    if (ResourcesManager.getInstance().levelTime <= 10) {
+//                            //timerTickSound.play();
+//                    }
+//                    if (ResourcesManager.getInstance().levelTime > 0) {
+//                    	
+////                        	
+//                    }
+//                        
+//                }
+//       }));
 //	}
 
 	@Override
@@ -514,20 +563,20 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 	                if (pSceneTouchEvent.isActionDown()) {
 	                	player.setMoving(true);
-	                	System.out.println("Aprieto " + player.isMoving());
+	                	System.out.println("1");
                         if (!player.isAnimationRunning()) { 
-//                            player.setFlippedHorizontal(true);
+                        	System.out.println("2");
                         	player.setRunningLeft();
                         }
                         this.setScale(0.6f);
 	                } else if (pSceneTouchEvent.isActionUp()) {	                	
 	                	player.setMoving(false);
-	                	System.out.println("Solteee " + player.isMoving());
                         if (player.isJumping()){
                             player.stopAnimation(5);
                         }else{
+                        	System.out.println("Entre acá");
                             player.stopAnimation(0);
-                    		player.stopMoving();
+                            player.getPlayerBody().setLinearVelocity(0,0);
                         }
                         this.setScale(0.5f);
 	                }		
@@ -542,21 +591,19 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		
 	                if (pSceneTouchEvent.isActionDown()) {
 	                	player.setMoving(true);
-	                	System.out.println("Aprieto " + player.isMoving());
+	                	System.out.println("1");
                         if (!player.isAnimationRunning()) {
-//                        	if(player.isFlippedHorizontal()) {
-//                        		player.setFlippedHorizontal(false);
+                        		System.out.println("2");
                         		player.setRunningRight();
                         	}
                         	this.setScale(0.6f);	
 	                } else if (pSceneTouchEvent.isActionUp()) {		                	
 	                	player.setMoving(false);  
-	                	System.out.println("Solteee " + player.isMoving());
 	                	if (player.isJumping()){
                             player.stopAnimation(5);
                         }else{
+                        	System.out.println("Entre acá");
                             player.stopAnimation(0);
-//                    		player.stopMoving();
                             player.getPlayerBody().setLinearVelocity(0,0);
                         }
                         this.setScale(0.5f);

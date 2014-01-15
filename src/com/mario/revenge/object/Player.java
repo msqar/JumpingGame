@@ -65,6 +65,11 @@ public abstract class Player extends AnimatedSprite
                 super.onUpdate(pSecondsElapsed);
                 camera.onUpdate(0.1f);
                 
+//                System.out.println(getX());
+                if(getX() == 3.0f) {
+//                	body.set
+                }
+                
                 if (getY() <= 0)
                 {                    
                     onDie();
@@ -75,20 +80,32 @@ public abstract class Player extends AnimatedSprite
     
     public void setRunningRight()
     {
-    	lastDirection = PlayerDirection.RIGHT;
-    	body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));    	
-        final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
-        animate(PLAYER_ANIMATE, 1, 3, true);
-        setFlippedHorizontal(false);
+    	lastDirection = PlayerDirection.RIGHT;    	
+		setFlippedHorizontal(false); 
+    	if(isJumping) {
+    		stopAnimation(5);
+    		body.setLinearVelocity(new Vector2(2, body.getLinearVelocity().y)); 
+    	}else {
+    		System.out.println("Siempre entro aca?");
+    		final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
+    		animate(PLAYER_ANIMATE, 1, 3, true);
+    		body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));    		   		
+    	}
+    	
     }
     
     public void setRunningLeft()
     {
-    	lastDirection = PlayerDirection.LEFT;
-    	body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));    	
-        final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
-        animate(PLAYER_ANIMATE, 1, 3, true);
-        setFlippedHorizontal(true);
+    	lastDirection = PlayerDirection.LEFT;  
+    	setFlippedHorizontal(true); 
+    	if(isJumping) {
+    		stopAnimation(5);
+    		body.setLinearVelocity(new Vector2(-2, body.getLinearVelocity().y));
+    	}else {
+    		final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
+    		animate(PLAYER_ANIMATE, 1, 3, true);    		
+    		body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));    		   		
+    	}
     }
     
     public void jump()
@@ -101,11 +118,20 @@ public abstract class Player extends AnimatedSprite
     	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };
     	
     	animate(PLAYER_ANIMATE, 4, 5, false);
-    	
-    	final Vector2 velocity = Vector2Pool.obtain(body.getLinearVelocity().x, 19);
-    	
+    	float xVelocity = 0f;
+
+    	if(body.getLinearVelocity().x > 0.0f) {
+    		xVelocity = body.getLinearVelocity().x - 1;
+    	}else if(body.getLinearVelocity().x < 0.0f){
+    		xVelocity = body.getLinearVelocity().x + 1;
+    	}else if(body.getLinearVelocity().x == 0.0f){
+    		xVelocity = body.getLinearVelocity().x;
+    	}
+    	System.out.println(xVelocity);
+    	final Vector2 velocity = Vector2Pool.obtain(xVelocity, 19);
     	body.setLinearVelocity(velocity);
     	Vector2Pool.recycle(velocity);
+    	stopAnimation(5);
 //      body.applyLinearImpulse(new Vector2(0, 10), body.getPosition());
     	ResourcesManager.getInstance().mario_jump_sound.play();    
         
