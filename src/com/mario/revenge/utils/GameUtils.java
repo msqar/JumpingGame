@@ -20,7 +20,7 @@ public class GameUtils {
 	public static String getResolvedCurrentWorld() {
 		String[] splitted = ResourcesManager.getInstance().currentWorldName.trim().split("-");
 		if(splitted != null && splitted.length != 0) {
-			return splitted[0] + " - " + splitted[1];
+			return splitted[0] + "-" + splitted[1];
 		}
     	return ResourcesManager.getInstance().currentWorldName;
 	}

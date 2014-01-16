@@ -82,7 +82,7 @@ public class ResourcesManager
     public int lives = 3;
     public String currentWorldName = "1-1";
     public int currentWorldID = 1;
-    public int levelTime = 400;
+    public int levelTime = 20;
 	public int coins = 0;
 	public int totalScore = 0;
     
@@ -177,6 +177,7 @@ public class ResourcesManager
     
     public void loadGameResources()
     {
+    	levelTime = GameUtils.resolveTimeBasedOnCurrentLevel();
         loadGameGraphics();
         loadGameFonts();
         loadGameAudio();

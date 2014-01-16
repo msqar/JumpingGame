@@ -57,7 +57,7 @@ public class InfoScene extends BaseScene {
         mapLevelText.setAnchorCenter(0, 0);
         mapLevelText.setText("WORLD");
         
-        currentMapLevelText = new Text(380, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
+        currentMapLevelText = new Text(400, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
         currentMapLevelText.setAnchorCenter(0, 0);
         currentMapLevelText.setText(GameUtils.getResolvedCurrentWorld());
         

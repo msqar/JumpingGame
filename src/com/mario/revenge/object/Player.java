@@ -3,6 +3,7 @@ package com.mario.revenge.object;
 import java.util.ArrayList;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.mario.revenge.managers.ResourcesManager;
+import com.mario.revenge.managers.SceneManager;
 
 public abstract class Player extends AnimatedSprite
 {
@@ -35,6 +37,9 @@ public abstract class Player extends AnimatedSprite
 		NONE; 
 	}
 	
+	public long start;
+	public long end = 0;
+	
 	public PlayerDirection lastDirection = PlayerDirection.UP;
 	
 
@@ -42,7 +47,7 @@ public abstract class Player extends AnimatedSprite
     // CONSTRUCTOR
     // ---------------------------------------------
     
-    public Player(float pX, float pY, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld)
+	public Player(float pX, float pY, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld)
     {
         super(pX, pY, ResourcesManager.getInstance().mario_region, vbo);
         createPhysics(camera, physicsWorld);
@@ -109,11 +114,12 @@ public abstract class Player extends AnimatedSprite
     }
     
     public void jump()
-    {
+    {      	
+   	
         if (footContacts < 1) 
         {
             return; 
-        }        
+        }
 
     	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };
     	
@@ -127,17 +133,31 @@ public abstract class Player extends AnimatedSprite
     	}else if(body.getLinearVelocity().x == 0.0f){
     		xVelocity = body.getLinearVelocity().x;
     	}
-    	System.out.println(xVelocity);
-    	final Vector2 velocity = Vector2Pool.obtain(xVelocity, 19);
-    	body.setLinearVelocity(velocity);
-    	Vector2Pool.recycle(velocity);
+  	
+//    	final Vector2 velocity = Vector2Pool.obtain(xVelocity, calculteYVelocity());
+//    	body.setLinearVelocity(xVelocity, calculteYVelocity());
+//    	Vector2Pool.recycle(velocity);
     	stopAnimation(5);
-//      body.applyLinearImpulse(new Vector2(0, 10), body.getPosition());
+    	body.applyLinearImpulse(new Vector2(0, 19), body.getPosition());
     	ResourcesManager.getInstance().mario_jump_sound.play();    
         
     }
     
-    public void jumpingStart() {
+    private float calculteYVelocity() {
+		float yVelocity = 0;
+		System.out.println("Start pressed: " + start);
+		long totalTime = (start - System.currentTimeMillis()) / 1000;
+    	if(totalTime <= 0.5) {
+    		yVelocity = 10;
+		}else{
+			if(totalTime > 1) {
+				yVelocity = 19;
+			}
+		}
+		return yVelocity;
+	}
+
+	public void jumpingStart() {    	
         this.isJumping = true;
     }
 
@@ -237,6 +257,18 @@ public abstract class Player extends AnimatedSprite
 
 	public void setMoving(boolean isMoving) {
 		this.isMoving = isMoving;
+	}
+
+	public void die() {
+		ResourcesManager.getInstance().lives--;
+		if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+    		ResourcesManager.getInstance().mario_song_music.stop();
+    	}
+    	
+    	dieAnimation();                    	    	
+    	ResourcesManager.getInstance().mario_game_over_sound.play();
+    	
+    	SceneManager.getInstance().loadGameScene(SceneManager.getInstance().getEngine());		
 	}	
 	
 }

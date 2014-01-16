@@ -7,8 +7,11 @@ import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.FadeInModifier;
+import org.andengine.entity.modifier.FadeOutModifier;
 import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
@@ -98,8 +101,6 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	private int amountOfCoinsGrabbed = 0;
 	private static final int TOTAL_AMOUNT_OF_COINS = 3;
 	
-//	private boolean firstTouch = false;
-	
 	// Handle Complete Game
 	private LevelCompleteWindow levelCompleteWindow;
 	
@@ -119,69 +120,31 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 	
 	
 	private void createTimeHandler() {
-		Timer timer = new Timer(1.5f, new Timer.ITimerCallback() {
+		registerUpdateHandler(new Timer(1f, new Timer.ITimerCallback() {
 		    public void onTick() {
 		    	String timeNow = String.valueOf(ResourcesManager.getInstance().levelTime -= 1);
-            	timeTitleValue.setText(timeNow);
-		    }
-		});
-		engine.registerUpdateHandler(timer);
-	}
 
-//	private void createTimeHandler() {              
-//        engine.registerUpdateHandler(new IUpdateHandler() {
-//
-//                       @Override
-//                       public void onUpdate(float pSecondsElapsed) {
-//                    	   
-//                    	   acumTime += pSecondsElapsed; 
-//                    	   System.out.println(acumTime);
-//                    	   if(acumTime == 1.0f) {
-//                    		   ResourcesManager.getInstance().levelTime -= 1;
-//                               timeTitleValue.setText("" + ResourcesManager.getInstance().levelTime);
-//                               if (ResourcesManager.getInstance().levelTime <= 0) {
-////                            	   player.onDie();
-//                               }
-//                    	   }
-//                               
-//                       }
-//                       
-//                       @Override
-//                       public void reset() {
-//                    	   acumTime = 0.0f;
-//                       }
-//
-//               });
-//   }
-	
-//	private void createTimeHandler() {              
-//	     engine.registerUpdateHandler(new TimerHandler(1, new ITimerCallback(){                      
-//                @Override
-//                public void onTimePassed(final TimerHandler pTimerHandler) {
-//                	pTimerHandler.setAutoReset(true);
-//                	System.out.println("Seconds Elapsed: " + pTimerHandler.getTimerSecondsElapsed());
-//                	System.out.println("Seconds: " + pTimerHandler.getTimerSeconds());
-////                	if(pTimerHandler.getTimerSeconds() == 1.0f) { 
-//                		System.out.println(ResourcesManager.getInstance().levelTime);
-//                    	ResourcesManager.getInstance().levelTime -= pTimerHandler.getTimerSeconds();
-//                    	timeTitleValue.setText("" + ResourcesManager.getInstance().levelTime);
-////                    	
-////                	}
-////                	pTimerHandler.reset();
-//                    if (ResourcesManager.getInstance().levelTime == 0) {
-//                            //End screen
-//                    }
-//                    if (ResourcesManager.getInstance().levelTime <= 10) {
-//                            //timerTickSound.play();
-//                    }
-//                    if (ResourcesManager.getInstance().levelTime > 0) {
-//                    	
-////                        	
-//                    }
-//                        
-//                }
-//       }));
-//	}
+            	if(ResourcesManager.getInstance().levelTime < 100) {
+            		timeTitleValue.setText(" " + timeNow);
+            	}else if(ResourcesManager.getInstance().levelTime < 50){
+            		timeTitleValue.setText(" " + timeNow);
+            		final LoopEntityModifier blinkModifier = new LoopEntityModifier(
+            	    	    new SequenceEntityModifier(new FadeOutModifier(0.25f), new FadeInModifier(0.25f)));
+            		timeTitleValue.registerEntityModifier(blinkModifier);
+            	}else if(ResourcesManager.getInstance().levelTime < 10){
+            		timeTitleValue.setText("  " + timeNow);
+            		final LoopEntityModifier blinkModifier = new LoopEntityModifier(
+            	    	    new SequenceEntityModifier(new FadeOutModifier(0.15f), new FadeInModifier(0.15f)));
+            		timeTitleValue.registerEntityModifier(blinkModifier);
+            	}else {
+            		timeTitleValue.setText(timeNow);
+            	}
+            	if("0".equalsIgnoreCase(timeNow.trim())) {
+            		player.die();            		
+            	}
+		    }
+		}));
+	}
 
 	@Override
 	public void onBackKeyPressed()
@@ -251,7 +214,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         mapLevelText.setAnchorCenter(0, 0);
         mapLevelText.setText("WORLD");
         
-        currentMapLevelText = new Text(380, 400, resourcesManager.font, "WORLD", new TextOptions(HorizontalAlign.LEFT), vbom);
+        currentMapLevelText = new Text(400, 400, resourcesManager.font, "WORLD", new TextOptions(HorizontalAlign.LEFT), vbom);
         currentMapLevelText.setAnchorCenter(0, 0);
         currentMapLevelText.setText(GameUtils.getResolvedCurrentWorld());
         
@@ -416,7 +379,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 
                     };
                     levelObject = player;
-                    levelObject.setScale(1.5f);
+                    levelObject.setScale(1.7f);
                 } 
                 else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_LEVEL_COMPLETE))
                 {
@@ -563,9 +526,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 	                if (pSceneTouchEvent.isActionDown()) {
 	                	player.setMoving(true);
-	                	System.out.println("1");
                         if (!player.isAnimationRunning()) { 
-                        	System.out.println("2");
                         	player.setRunningLeft();
                         }
                         this.setScale(0.6f);
@@ -574,9 +535,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                         if (player.isJumping()){
                             player.stopAnimation(5);
                         }else{
-                        	System.out.println("Entre acá");
+//                        	System.out.println("Fuck im here in left stucked!");
                             player.stopAnimation(0);
-                            player.getPlayerBody().setLinearVelocity(0,0);
+                            player.getPlayerBody().setLinearVelocity(0,0);	   	
                         }
                         this.setScale(0.5f);
 	                }		
@@ -590,21 +551,21 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		
 	                if (pSceneTouchEvent.isActionDown()) {
+	                	
 	                	player.setMoving(true);
-	                	System.out.println("1");
                         if (!player.isAnimationRunning()) {
-                        		System.out.println("2");
                         		player.setRunningRight();
                         	}
                         	this.setScale(0.6f);	
-	                } else if (pSceneTouchEvent.isActionUp()) {		                	
+	                } else if (pSceneTouchEvent.isActionUp()) {
+	                	
 	                	player.setMoving(false);  
 	                	if (player.isJumping()){
                             player.stopAnimation(5);
                         }else{
-                        	System.out.println("Entre acá");
+//                        	System.out.println("Fuck im here in right stucked!");
                             player.stopAnimation(0);
-                            player.getPlayerBody().setLinearVelocity(0,0);
+                            player.getPlayerBody().setLinearVelocity(0,0);  
                         }
                         this.setScale(0.5f);
 	                }		
@@ -619,9 +580,11 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		        	
 		        	if (pSceneTouchEvent.isActionDown()) {
+		        		player.start = System.currentTimeMillis();
 		        		this.setScale(0.7f);
 	                    player.jump();
 			        } else if (pSceneTouchEvent.isActionUp()) {
+			        	player.start = 0;
 			        	this.setScale(0.6f);
 			        }
 			        return true;
