@@ -12,6 +12,7 @@ import org.andengine.entity.modifier.FadeOutModifier;
 import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
@@ -35,6 +36,7 @@ import org.andengine.util.level.simple.SimpleLevelLoader;
 import org.xml.sax.Attributes;
 
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -123,28 +125,35 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		registerUpdateHandler(new Timer(1f, new Timer.ITimerCallback() {
 		    public void onTick() {
 		    	String timeNow = String.valueOf(ResourcesManager.getInstance().levelTime -= 1);
-
+		    	timeTitleValue.setText(GameUtils.padLeft(timeNow, 3));
+		    	
             	if(ResourcesManager.getInstance().levelTime < 100) {
-            		timeTitleValue.setText(" " + timeNow);
+//            		timeTitleValue.setText(" " + timeNow);
             	}else if(ResourcesManager.getInstance().levelTime < 50){
-            		timeTitleValue.setText(" " + timeNow);
+//            		timeTitleValue.setText(" " + timeNow);
             		final LoopEntityModifier blinkModifier = new LoopEntityModifier(
             	    	    new SequenceEntityModifier(new FadeOutModifier(0.25f), new FadeInModifier(0.25f)));
             		timeTitleValue.registerEntityModifier(blinkModifier);
             	}else if(ResourcesManager.getInstance().levelTime < 10){
-            		timeTitleValue.setText("  " + timeNow);
+//            		timeTitleValue.setText("  " + timeNow);
             		final LoopEntityModifier blinkModifier = new LoopEntityModifier(
             	    	    new SequenceEntityModifier(new FadeOutModifier(0.15f), new FadeInModifier(0.15f)));
             		timeTitleValue.registerEntityModifier(blinkModifier);
-            	}else {
-            		timeTitleValue.setText(timeNow);
-            	}
+            	}//else {
+////            		timeTitleValue.setText(timeNow);
+//            	}
+            	
             	if("0".equalsIgnoreCase(timeNow.trim())) {
             		player.die();            		
             	}
 		    }
 		}));
 	}
+	
+	private void stopTimeHandler() {
+		clearUpdateHandlers();
+	}
+	
 
 	@Override
 	public void onBackKeyPressed()
@@ -192,6 +201,9 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
     private void createHUD()
     {
         gameHUD = new HUD();
+        
+        gameHUD.setTouchAreaBindingOnActionDownEnabled(true);
+        gameHUD.setTouchAreaBindingOnActionMoveEnabled(true);
 
         marioTitleText = new Text(20, 430, resourcesManager.font, "MARIO", new TextOptions(HorizontalAlign.LEFT), vbom);
         marioTitleText.setAnchorCenter(0, 0);
@@ -224,7 +236,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         
         timeTitleValue = new Text(570, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
         timeTitleValue.setAnchorCenter(0, 0);
-        timeTitleValue.setText(String.valueOf(ResourcesManager.getInstance().levelTime));
+        timeTitleValue.setText(GameUtils.getResolvedCurrentTime());//String.valueOf(ResourcesManager.getInstance().levelTime));
         
         final Sprite musicOffButton = new Sprite(750, 430, resourcesManager.gamehud_music_off_region, vbom);
         musicOffButton.setScale(0.5f);
@@ -280,6 +292,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
         final SimpleLevelLoader levelLoader = new SimpleLevelLoader(vbom);
         
         final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0.01f, 0.5f); // 0, 0.01, 0.5
+        
+        //Create Out of Bounds Left Wall.
+        PhysicsFactory.createBoxBody(physicsWorld, new Rectangle(-20, camera.getHeight()/2, 50, camera.getHeight(), vbom), 
+        		BodyType.StaticBody, FIXTURE_DEF).setUserData("WallBorder");
         
         levelLoader.registerEntityLoader(new EntityLoader<SimpleLevelEntityLoaderData>(LevelConstants.TAG_LEVEL)
         {
@@ -366,15 +382,18 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                     	@Override
                     	public void onDie()
                     	{
-                			ResourcesManager.getInstance().lives--;
-                			if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
-                	    		ResourcesManager.getInstance().mario_song_music.stop();
-                	    	}
-                	    	
-                	    	player.dieAnimation();                    	    	
-                	    	ResourcesManager.getInstance().mario_game_over_sound.play();
-                	    	
-                	    	SceneManager.getInstance().loadGameScene(engine);
+                    		player.die();
+                    		GameScene.this.clearTouchAreas();
+                    		
+//                			ResourcesManager.getInstance().lives--;
+//                			if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
+//                	    		ResourcesManager.getInstance().mario_song_music.stop();
+//                	    	}
+//                	    	
+//                	    	player.dieAnimation();                    	    	
+//                	    	ResourcesManager.getInstance().mario_game_over_sound.play();
+//                	    	
+////                	    	SceneManager.getInstance().loadGameScene(engine);
                     	}
 
                     };
@@ -409,6 +428,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                             	}else{
                             		count = StarsCount.ONE;
                             	}
+                            	
+                            	gameHUD.clearTouchAreas();
+                            	
+                            	stopTimeHandler();
                             	
                                 levelCompleteWindow.display(count, GameScene.this, camera);
                                 this.setVisible(false);
@@ -456,10 +479,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                 final Fixture x1 = contact.getFixtureA();
                 final Fixture x2 = contact.getFixtureB();
                 player.setIsJumping(false);
-
+    
                 if (x1.getBody().getUserData() != null && x2.getBody().getUserData() != null)
                 {
-                    if (x2.getBody().getUserData().equals("mario"))
+                    if (x2.getBody().getUserData().equals("mario") && !x1.getBody().getUserData().equals("WallBorder"))
                     {
                         player.increaseFootContacts();
                     }
@@ -489,10 +512,10 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
             {
                 final Fixture x1 = contact.getFixtureA();
                 final Fixture x2 = contact.getFixtureB();
-
+       
                 if (x1.getBody().getUserData() != null && x2.getBody().getUserData() != null)
                 {
-                    if (x2.getBody().getUserData().equals("mario"))
+                    if (x2.getBody().getUserData().equals("mario") && !x1.getBody().getUserData().equals("WallBorder"))
                     {
                         player.decreaseFootContacts();
                     }
@@ -530,7 +553,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                         	player.setRunningLeft();
                         }
                         this.setScale(0.6f);
-	                } else if (pSceneTouchEvent.isActionUp()) {	                	
+	                } else if (pSceneTouchEvent.isActionUp() || pSceneTouchEvent.isActionCancel() || pSceneTouchEvent.isActionOutside()) {	                	
 	                	player.setMoving(false);
                         if (player.isJumping()){
                             player.stopAnimation(5);
@@ -557,7 +580,7 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
                         		player.setRunningRight();
                         	}
                         	this.setScale(0.6f);	
-	                } else if (pSceneTouchEvent.isActionUp()) {
+	                } else if (pSceneTouchEvent.isActionUp() || pSceneTouchEvent.isActionCancel() || pSceneTouchEvent.isActionOutside()) {
 	                	
 	                	player.setMoving(false);  
 	                	if (player.isJumping()){
@@ -580,15 +603,44 @@ public class GameScene extends BaseScene implements IOnSceneTouchListener
 		                        final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		        	
 		        	if (pSceneTouchEvent.isActionDown()) {
+		        		if (player.jumpTimeHandler == null) {
+		        			player.jumpTimeHandler = new TimerHandler(player.Total_Jump_Time, new  ITimerCallback(){
+
+								@Override
+								public void onTimePassed(TimerHandler pTimerHandler) {
+//									long totalTime = System.currentTimeMillis() - player.start;
+//									Log.d("Info", "In Timer Jump! Total Time : "+totalTime);
+									player.end = player.start + player.MAX_JUMP;
+									player.jump();
+								}
+			        			
+			        		});
+		        			GameScene.this.registerUpdateHandler(player.jumpTimeHandler);
+		        		}
+
 		        		player.start = System.currentTimeMillis();
+		        		player.end = 0;
 		        		this.setScale(0.7f);
-	                    player.jump();
-			        } else if (pSceneTouchEvent.isActionUp()) {
-			        	player.start = 0;
+		        		player.jumpTimeHandler.reset();
+		        	} else if (pSceneTouchEvent.isActionUp() && player.jumpTimeHandler != null) {
+		        		if (!player.jumpTimeHandler.isTimerCallbackTriggered()){
+			        		jumpCode("OnActionUp Jump! Total Time : "+(player.end - player.start));
+		        		}
+		        		this.setScale(0.6f);
+			        } else if((pSceneTouchEvent.isActionOutside() || pSceneTouchEvent.isActionCancel())  && player.jumpTimeHandler != null){
+			        	if (!player.jumpTimeHandler.isTimerCallbackTriggered()){
+			        		jumpCode("OnActionCancel/Outside Jump! Total Time : "+(player.end - player.start));
+		        		}
 			        	this.setScale(0.6f);
 			        }
 			        return true;
 		        };
+		        private void jumpCode(String log){
+		        	player.jumpTimeHandler.setTimerCallbackTriggered(true);
+		        	player.end = System.currentTimeMillis();
+//        			Log.d("Info", log);
+	        		player.jump();
+		        }
 		};
 		
 		leftArrowButton.setScale(0.5f);

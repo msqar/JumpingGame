@@ -67,7 +67,7 @@ public class InfoScene extends BaseScene {
         
         timeTitleValue = new Text(570, 400, resourcesManager.font, "123456", new TextOptions(HorizontalAlign.LEFT), vbom);
         timeTitleValue.setAnchorCenter(0, 0);
-        timeTitleValue.setText(String.valueOf(ResourcesManager.getInstance().levelTime));
+        timeTitleValue.setText(GameUtils.getResolvedCurrentTime());
 		
 		
 		worldText = new Text(400, 300, ResourcesManager.getInstance().font, "WORLD", ResourcesManager.getInstance().vbom);

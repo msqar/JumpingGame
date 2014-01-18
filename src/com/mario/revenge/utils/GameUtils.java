@@ -26,20 +26,11 @@ public class GameUtils {
 	}
 	
 	public static String getResolvedCurrentScore() {
-		String zeros = "0000";
-		if(ResourcesManager.getInstance().totalScore == 0) {
-			zeros = "00000";
-		}else if(ResourcesManager.getInstance().totalScore > 99999) {	
-			zeros = "";
-		}else if(ResourcesManager.getInstance().totalScore > 9999) {
-			zeros = "0";
-		}else if(ResourcesManager.getInstance().totalScore > 999) {
-			zeros = "00";
-		}else if(ResourcesManager.getInstance().totalScore > 99) {	
-			zeros = "000";
-		}
-		
-		return zeros + ResourcesManager.getInstance().totalScore;
+		return getResolvedCurrentScore(ResourcesManager.getInstance().totalScore);
+	}
+	
+	public static String getResolvedCurrentScore(int pScore){
+		return padLeft(Integer.toString(ResourcesManager.getInstance().totalScore), 6).replace(" ", "0");
 	}
 
 	public static int resolveTimeBasedOnCurrentLevel() {
@@ -48,5 +39,15 @@ public class GameUtils {
 		return info.getAmountOfTime();
 	}
 
+	public static String getResolvedCurrentTime(){
+		return padLeft(Integer.toString(ResourcesManager.getInstance().levelTime), 3);
+	}
+	public static String padRight(String s, int n) {
+	     return String.format("%1$-" + n + "s", s);  
+	}
+
+	public static String padLeft(String s, int n) {
+	    return String.format("%1$" + n + "s", s);  
+	}
 
 }

@@ -4,12 +4,16 @@ import java.util.ArrayList;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.AnimatedSprite.IAnimationListener;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -40,6 +44,12 @@ public abstract class Player extends AnimatedSprite
 	public long start;
 	public long end = 0;
 	
+	public final long MAX_JUMP = 150;
+	public final float Total_Jump_Time = ((float)MAX_JUMP/1000f);
+	public final long SHORT_JUMP = 75;
+	public final long MED_JUMP = 150;
+	public TimerHandler jumpTimeHandler;
+	
 	public PlayerDirection lastDirection = PlayerDirection.UP;
 	
 
@@ -58,10 +68,11 @@ public abstract class Player extends AnimatedSprite
     
     private void createPhysics(final Camera camera, PhysicsWorld physicsWorld)
     {        
-        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(0, 0, 0));
+    	body = PhysicsFactory.createCircleBody(physicsWorld, this, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(0, 0, 0));
+//        body = PhysicsFactory.createBoxBody(physicsWorld, this, BodyType.DynamicBody, PhysicsFactory.createFixtureDef(0, 0, 0));
         body.setUserData("mario");
         body.setFixedRotation(true);
-        
+        body.setBullet(true);
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(this, body, true, false)
         {
             @Override
@@ -91,7 +102,8 @@ public abstract class Player extends AnimatedSprite
     		stopAnimation(5);
     		body.setLinearVelocity(new Vector2(2, body.getLinearVelocity().y)); 
     	}else {
-    		System.out.println("Siempre entro aca?");
+    		System.out.println("Running Right - localPoint["+body.getPosition().x+"]["+body.getPosition().y+"]"+
+    	" SpritePos["+this.getX()+"]["+this.getY()+"]");
     		final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
     		animate(PLAYER_ANIMATE, 1, 3, true);
     		body.setLinearVelocity(new Vector2(5, body.getLinearVelocity().y));    		   		
@@ -107,7 +119,8 @@ public abstract class Player extends AnimatedSprite
     		stopAnimation(5);
     		body.setLinearVelocity(new Vector2(-2, body.getLinearVelocity().y));
     	}else {
-    		final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
+    		System.out.println("Running Right - localPoint["+body.getPosition().x+"]["+body.getPosition().y+"]"+
+    		    	" SpritePos["+this.getX()+"]["+this.getY()+"]");    		final long[] PLAYER_ANIMATE = new long[] { 100, 100, 100 };            
     		animate(PLAYER_ANIMATE, 1, 3, true);    		
     		body.setLinearVelocity(new Vector2(-5, body.getLinearVelocity().y));    		   		
     	}
@@ -138,24 +151,39 @@ public abstract class Player extends AnimatedSprite
 //    	body.setLinearVelocity(xVelocity, calculteYVelocity());
 //    	Vector2Pool.recycle(velocity);
     	stopAnimation(5);
-    	body.applyLinearImpulse(new Vector2(0, 19), body.getPosition());
+    	body.applyLinearImpulse(new Vector2(0, calculteYVelocity()), body.getPosition());
     	ResourcesManager.getInstance().mario_jump_sound.play();    
         
     }
     
     private float calculteYVelocity() {
 		float yVelocity = 0;
-		System.out.println("Start pressed: " + start);
-		long totalTime = (start - System.currentTimeMillis()) / 1000;
-    	if(totalTime <= 0.5) {
+		long milliseconds = end - start;
+		Log.d("Info", "Calculate y - Total Time : "+milliseconds);//+" & "+totalTime
+    	if(milliseconds < SHORT_JUMP){
     		yVelocity = 10;
-		}else{
-			if(totalTime > 1) {
-				yVelocity = 19;
-			}
+    	} else if(milliseconds < MED_JUMP){
+    		yVelocity = 14.5f;
+		} else{
+			yVelocity = 19;
 		}
+    	Log.d("Info", "Jumping with Y Velocity = "+yVelocity);
 		return yVelocity;
 	}
+    
+//    private float calculteYVelocity() {
+//		float yVelocity = 0;
+//		System.out.println("Start pressed: " + start);
+//		long totalTime = (start - System.currentTimeMillis()) / 1000;
+//    	if(totalTime <= 0.5) {
+//    		yVelocity = 10;
+//		}else{
+//			if(totalTime > 1) {
+//				yVelocity = 19;
+//			}
+//		}
+//		return yVelocity;
+//	}
 
 	public void jumpingStart() {    	
         this.isJumping = true;
@@ -194,9 +222,9 @@ public abstract class Player extends AnimatedSprite
 		return isMoving;
 	}
 
-	public void dieAnimation() {
+	public void dieAnimation(IAnimationListener pIAnimationListener) {
     	final long[] PLAYER_ANIMATE = new long[] { 100, 100 };        
-        animate(PLAYER_ANIMATE, 6, 7, false);
+        animate(PLAYER_ANIMATE, 6, 7, false, pIAnimationListener);
         body.applyLinearImpulse(new Vector2(0, 30), body.getPosition());
         
         ArrayList<Fixture> fixtureList = body.getFixtureList();
@@ -260,15 +288,39 @@ public abstract class Player extends AnimatedSprite
 	}
 
 	public void die() {
+		jumpTimeHandler.setTimerCallbackTriggered(true);
+		
 		ResourcesManager.getInstance().lives--;
 		if(ResourcesManager.getInstance().mario_song_music.isPlaying()) {
     		ResourcesManager.getInstance().mario_song_music.stop();
     	}
     	
-    	dieAnimation();                    	    	
-    	ResourcesManager.getInstance().mario_game_over_sound.play();
-    	
-    	SceneManager.getInstance().loadGameScene(SceneManager.getInstance().getEngine());		
+    	dieAnimation(new IAnimationListener(){
+
+			@Override
+			public void onAnimationStarted(AnimatedSprite pAnimatedSprite, int pInitialLoopCount) {
+				
+			}
+
+			@Override
+			public void onAnimationFrameChanged(AnimatedSprite pAnimatedSprite, int pOldFrameIndex, int pNewFrameIndex) {
+				
+			}
+
+			@Override
+			public void onAnimationLoopFinished(AnimatedSprite pAnimatedSprite, int pRemainingLoopCount,
+					int pInitialLoopCount) {
+				
+			}
+
+			@Override
+			public void onAnimationFinished(AnimatedSprite pAnimatedSprite) {
+//				((GameScene)SceneManager.getInstance().getCurrentScene());
+				SceneManager.getInstance().loadGameScene(SceneManager.getInstance().getEngine());
+			}
+    		
+    	});                    	    	
+    	ResourcesManager.getInstance().mario_game_over_sound.play();	
 	}	
 	
 }

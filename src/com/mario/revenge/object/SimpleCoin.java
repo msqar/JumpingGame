@@ -14,6 +14,7 @@ import org.andengine.util.modifier.ease.EaseExponentialOut;
 
 import com.mario.revenge.activity.GameActivity;
 import com.mario.revenge.managers.ResourcesManager;
+import com.mario.revenge.utils.GameUtils;
 
 public class SimpleCoin extends AnimatedSprite {	
 	
@@ -46,20 +47,21 @@ public class SimpleCoin extends AnimatedSprite {
     }
     
     private void resolveTotalScoreText(Text totalScoreText) {
-		String zeros = "0000";
-		if(ResourcesManager.getInstance().totalScore == 0) {
-			zeros = "00000";
-		}else if(ResourcesManager.getInstance().totalScore > 99999) {	
-			zeros = "";
-		}else if(ResourcesManager.getInstance().totalScore > 9999) {
-			zeros = "0";
-		}else if(ResourcesManager.getInstance().totalScore > 999) {
-			zeros = "00";
-		}else if(ResourcesManager.getInstance().totalScore > 99) {	
-			zeros = "000";
-		}
-    	
-    	totalScoreText.setText(zeros + ResourcesManager.getInstance().totalScore);
+//		String zeros = "0000";
+//		if(ResourcesManager.getInstance().totalScore == 0) {
+//			zeros = "00000";
+//		}else if(ResourcesManager.getInstance().totalScore > 99999) {	
+//			zeros = "";
+//		}else if(ResourcesManager.getInstance().totalScore > 9999) {
+//			zeros = "0";
+//		}else if(ResourcesManager.getInstance().totalScore > 999) {
+//			zeros = "00";
+//		}else if(ResourcesManager.getInstance().totalScore > 99) {	
+//			zeros = "000";
+//		}
+//    	
+//    	totalScoreText.setText(zeros + ResourcesManager.getInstance().totalScore);
+    	totalScoreText.setText(GameUtils.getResolvedCurrentScore(ResourcesManager.getInstance().totalScore));
 	}
 
 	private void resolveCoinText(Text scoreCoinsText) {
