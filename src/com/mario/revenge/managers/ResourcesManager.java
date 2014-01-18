@@ -200,7 +200,7 @@ public class ResourcesManager
     	       
     	try 
     	{
-    	    this.menuTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
+    	    this.menuTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(1, 1, 1));
     	    this.menuTextureAtlas.load();
     	} 
     	catch (final TextureAtlasBuilderException e)
@@ -266,7 +266,7 @@ public class ResourcesManager
         
         try 
         {
-            this.gameTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
+            this.gameTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(1, 1, 1));
             this.gameTextureAtlas.load();
         } 
         catch (final TextureAtlasBuilderException e)
@@ -333,7 +333,7 @@ public class ResourcesManager
     	
     	try 
         {
-            this.splashTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 0));
+            this.splashTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(1, 1, 1));
             this.splashTextureAtlas.load();
         } 
         catch (final TextureAtlasBuilderException e)
